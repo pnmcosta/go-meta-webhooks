@@ -2,10 +2,7 @@
     "type": "object",
     "properties": {
         "object": {
-            "type": "string",
-            "enum": [
-                "instagram"
-            ]
+            "type": "string"
         },
         "entry": {
             "type": "array",

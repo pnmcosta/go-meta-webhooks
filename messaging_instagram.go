@@ -2,28 +2,28 @@ package gometawebhooks
 
 import "context"
 
-func (hook Webhooks) defaultOnInstagramMessaging(ctx context.Context, entry Entry, messaging Messaging) {
+func (hook Webhooks) handleInstagramMessagingDefault(ctx context.Context, entry Entry, messaging Messaging) {
 	if messaging.Message.IsEcho {
 		return
 	}
 
 	if messaging.Message.Id != "" {
-		if hook.onInstagramMessage != nil {
-			hook.onInstagramMessage(ctx, messaging.Sender.Id, messaging.Recipient.Id, messaging.Timestamp, messaging.Message)
+		if hook.handleInstagramMessage != nil {
+			hook.handleInstagramMessage(ctx, messaging.Sender.Id, messaging.Recipient.Id, messaging.Timestamp, messaging.Message)
 		}
 		return
 	}
 
 	if messaging.Postback.Id != "" {
-		if hook.onInstagramPostback != nil {
-			hook.onInstagramPostback(ctx, messaging.Sender.Id, messaging.Recipient.Id, messaging.Timestamp, messaging.Postback)
+		if hook.handleInstagramPostback != nil {
+			hook.handleInstagramPostback(ctx, messaging.Sender.Id, messaging.Recipient.Id, messaging.Timestamp, messaging.Postback)
 		}
 		return
 	}
 
 	if messaging.Referral.Type != "" {
-		if hook.onInstagramReferral != nil {
-			hook.onInstagramReferral(ctx, messaging.Sender.Id, messaging.Recipient.Id, messaging.Timestamp, messaging.Referral)
+		if hook.handleInstagramReferral != nil {
+			hook.handleInstagramReferral(ctx, messaging.Sender.Id, messaging.Recipient.Id, messaging.Timestamp, messaging.Referral)
 		}
 		return
 	}

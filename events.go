@@ -20,7 +20,6 @@ var (
 	ErrHMACVerificationFailed    = fmt.Errorf("HMAC verification failed: %w", ErrWebhooks)
 	ErrParsingPayload            = fmt.Errorf("error parsing payload: %w", ErrWebhooks)
 	ErrParsingEvent              = fmt.Errorf("error parsing event: %w", ErrWebhooks)
-	ErrObjectNotSupported        = fmt.Errorf("event object not supported: %w", ErrWebhooks)
 )
 
 type Entry struct {
@@ -35,8 +34,8 @@ type Event struct {
 	Entry  []Entry `json:"entry"`
 }
 
-// Parses, verifies and processes Meta Webhook Event
-func (hooks Webhooks) Process(ctx context.Context, r *http.Request) (Event, error) {
+// Handles Meta Webhooks POST requests, verifies signature if secret is supplied, validates and parses Event payload.
+func (hooks Webhooks) Handle(ctx context.Context, r *http.Request) (Event, error) {
 	defer func() {
 		_, _ = io.Copy(io.Discard, r.Body)
 		_ = r.Body.Close()
@@ -62,8 +61,8 @@ func (hooks Webhooks) Process(ctx context.Context, r *http.Request) (Event, erro
 	}
 
 	// If we have a Secret set, we should check the MAC
+	// https://developers.facebook.com/docs/messenger-platform/webhooks#validate-payloads
 	if len(hooks.secret) > 0 {
-		// https://developers.facebook.com/docs/messenger-platform/webhooks#validate-payloads
 		signature := headers["x_hub_signature_256"]
 		if len(signature) == 0 {
 			return event, ErrMissingHubSignatureHeader
@@ -72,7 +71,7 @@ func (hooks Webhooks) Process(ctx context.Context, r *http.Request) (Event, erro
 		mac.Write(payload)
 		expectedMAC := hex.EncodeToString(mac.Sum(nil))
 
-		if !hmac.Equal([]byte(signature[7:]), []byte(expectedMAC)) {
+		if len(signature) <= 8 || !hmac.Equal([]byte(signature[7:]), []byte(expectedMAC)) {
 			return event, ErrHMACVerificationFailed
 		}
 	}

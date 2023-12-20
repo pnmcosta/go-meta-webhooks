@@ -16,16 +16,16 @@ type Webhooks struct {
 	token  string
 	secret string
 
-	onChange    func(context.Context, Object, Entry, Change)
-	onMessaging func(context.Context, Object, Entry, Messaging)
+	handleChange    func(ctx context.Context, object Object, entry Entry, change Change)
+	handleMessaging func(ctx context.Context, object Object, entry Entry, messaging Messaging)
 
-	onInstagramMention      func(context.Context, Entry, MentionsFieldValue)
-	onInstagramStoryInsight func(context.Context, Entry, StoryInsightsFieldValue)
-	onInstagramMessaging    func(context.Context, Entry, Messaging)
+	handleInstagramMention      func(ctx context.Context, entry Entry, mention MentionsFieldValue)
+	handleInstagramStoryInsight func(ctx context.Context, entry Entry, storyInsights StoryInsightsFieldValue)
+	handleInstagramMessaging    func(ctx context.Context, entry Entry, messaging Messaging)
 
-	onInstagramMessage  func(context.Context, string, string, int64, Message)
-	onInstagramPostback func(context.Context, string, string, int64, Postback)
-	onInstagramReferral func(context.Context, string, string, int64, Referral)
+	handleInstagramMessage  func(ctx context.Context, sender string, recipient string, time int64, message Message)
+	handleInstagramPostback func(ctx context.Context, sender string, recipient string, time int64, postback Postback)
+	handleInstagramReferral func(ctx context.Context, sender string, recipient string, time int64, referral Referral)
 }
 
 // Creates and returns a Webhooks instance

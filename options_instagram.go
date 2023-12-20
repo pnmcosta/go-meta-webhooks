@@ -2,44 +2,44 @@ package gometawebhooks
 
 import "context"
 
-func (MetaWebhookOptions) OnInstagramMention(fn func(context.Context, Entry, MentionsFieldValue)) Option {
+func (MetaWebhookOptions) HandleInstagramMention(fn func(ctx context.Context, entry Entry, mention MentionsFieldValue)) Option {
 	return func(hook *Webhooks) error {
-		hook.onInstagramMention = fn
+		hook.handleInstagramMention = fn
 		return nil
 	}
 }
 
-func (MetaWebhookOptions) OnInstagramStoryInsight(fn func(context.Context, Entry, StoryInsightsFieldValue)) Option {
+func (MetaWebhookOptions) HandleInstagramStoryInsight(fn func(ctx context.Context, entry Entry, storyInsights StoryInsightsFieldValue)) Option {
 	return func(hook *Webhooks) error {
-		hook.onInstagramStoryInsight = fn
+		hook.handleInstagramStoryInsight = fn
 		return nil
 	}
 }
 
-func (MetaWebhookOptions) OnInstagramMessaging(fn func(context.Context, Entry, Messaging)) Option {
+func (MetaWebhookOptions) HandleInstagramMessaging(fn func(ctx context.Context, entry Entry, messaging Messaging)) Option {
 	return func(hook *Webhooks) error {
-		hook.onInstagramMessaging = fn
+		hook.handleInstagramMessaging = fn
 		return nil
 	}
 }
 
-func (MetaWebhookOptions) OnInstagramMessage(fn func(context.Context, string, string, int64, Message)) Option {
+func (MetaWebhookOptions) HandleInstagramMessage(fn func(ctx context.Context, sender string, recipient string, time int64, message Message)) Option {
 	return func(hook *Webhooks) error {
-		hook.onInstagramMessage = fn
+		hook.handleInstagramMessage = fn
 		return nil
 	}
 }
 
-func (MetaWebhookOptions) OnInstagramPostback(fn func(context.Context, string, string, int64, Postback)) Option {
+func (MetaWebhookOptions) HandleInstagramPostback(fn func(ctx context.Context, sender string, recipient string, time int64, postback Postback)) Option {
 	return func(hook *Webhooks) error {
-		hook.onInstagramPostback = fn
+		hook.handleInstagramPostback = fn
 		return nil
 	}
 }
 
-func (MetaWebhookOptions) OnInstagramReferral(fn func(context.Context, string, string, int64, Referral)) Option {
+func (MetaWebhookOptions) HandleInstagramReferral(fn func(ctx context.Context, sender string, recipient string, time int64, referral Referral)) Option {
 	return func(hook *Webhooks) error {
-		hook.onInstagramReferral = fn
+		hook.handleInstagramReferral = fn
 		return nil
 	}
 }

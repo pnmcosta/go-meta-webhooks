@@ -12,9 +12,9 @@ var (
 	embedSchema      string
 	validationSchema *jsonschema.Schema
 
-	ErrSchemaCompile   = fmt.Errorf("failed to compile schema: %w", ErrWebhooks)
-	ErrSchemaNotSet    = fmt.Errorf("missing embedded schema: %w", ErrWebhooks)
-	ErrPayloadValidate = fmt.Errorf("failed to validate payload: %w", ErrWebhooks)
+	ErrSchemaCompile  = fmt.Errorf("failed to compile schema: %w", ErrWebhooks)
+	ErrMissingSchema  = fmt.Errorf("missing embedded schema: %w", ErrWebhooks)
+	ErrInvalidPayload = fmt.Errorf("invalid payload: %w", ErrWebhooks)
 )
 
 func (hook *Webhooks) compileSchema() error {
@@ -32,11 +32,11 @@ func (hook *Webhooks) compileSchema() error {
 
 func (hook Webhooks) validate(payload interface{}) error {
 	if validationSchema == nil {
-		return ErrSchemaNotSet
+		return ErrMissingSchema
 	}
 
 	if err := validationSchema.Validate(payload); err != nil {
-		return wrapErr(err, ErrPayloadValidate)
+		return wrapErr(err, ErrInvalidPayload)
 	}
 
 	return nil

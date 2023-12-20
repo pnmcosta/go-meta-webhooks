@@ -27,16 +27,16 @@ func (MetaWebhookOptions) Token(token string) Option {
 	}
 }
 
-func (MetaWebhookOptions) OnChange(fn func(context.Context, Object, Entry, Change)) Option {
+func (MetaWebhookOptions) HandleChange(fn func(context.Context, Object, Entry, Change)) Option {
 	return func(hook *Webhooks) error {
-		hook.onChange = fn
+		hook.handleChange = fn
 		return nil
 	}
 }
 
-func (MetaWebhookOptions) OnMessaging(fn func(context.Context, Object, Entry, Messaging)) Option {
+func (MetaWebhookOptions) HandleMessaging(fn func(context.Context, Object, Entry, Messaging)) Option {
 	return func(hook *Webhooks) error {
-		hook.onMessaging = fn
+		hook.handleMessaging = fn
 		return nil
 	}
 }

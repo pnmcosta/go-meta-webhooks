@@ -1,11 +1,19 @@
 package gometawebhooks
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+)
 
 type Object string
 
 const (
 	Instagram Object = "instagram"
+)
+
+var (
+	ErrObjectNotSupported = fmt.Errorf("object not supported: %w", ErrWebhooks)
 )
 
 func (t Object) String() string {
@@ -26,8 +34,12 @@ func (t *Object) UnmarshalJSON(b []byte) error {
 	var s string
 	err := json.Unmarshal(b, &s)
 	if err != nil {
-		return err
+		return wrapErr(err, ErrObjectNotSupported)
 	}
 	*t = t.FromString(s)
+	if *t == "" {
+		return wrapErr(errors.New(s), ErrObjectNotSupported)
+	}
+
 	return nil
 }

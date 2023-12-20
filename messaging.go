@@ -71,9 +71,9 @@ func (hook Webhooks) messaging(ctx context.Context, object Object, entry Entry) 
 		go func(messaging Messaging) {
 			defer wg.Done()
 
-			fn := hook.onMessaging
+			fn := hook.handleMessaging
 			if fn == nil {
-				fn = hook.defaultOnMessaging
+				fn = hook.handleMessagingDefault
 			}
 
 			fn(ctx, object, entry, messaging)
@@ -83,12 +83,12 @@ func (hook Webhooks) messaging(ctx context.Context, object Object, entry Entry) 
 	}
 }
 
-func (hook Webhooks) defaultOnMessaging(ctx context.Context, object Object, entry Entry, messaging Messaging) {
+func (hook Webhooks) handleMessagingDefault(ctx context.Context, object Object, entry Entry, messaging Messaging) {
 	switch object {
 	case Instagram:
-		fn := hook.onInstagramMessaging
+		fn := hook.handleInstagramMessaging
 		if fn == nil {
-			fn = hook.defaultOnInstagramMessaging
+			fn = hook.handleInstagramMessagingDefault
 		}
 
 		fn(ctx, entry, messaging)

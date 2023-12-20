@@ -3,6 +3,7 @@ package gometawebhooks
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"sync"
@@ -10,7 +11,7 @@ import (
 
 var (
 	ErrParsingChanges           = fmt.Errorf("error parsing changes payload: %w", ErrWebhooks)
-	ErrChangesFieldNotSupported = fmt.Errorf("changes field not supported: %w", ErrWebhooks)
+	ErrChangesFieldNotSupported = fmt.Errorf("field not supported: %w", ErrWebhooks)
 )
 
 type Change struct {
@@ -60,7 +61,7 @@ func (c *Change) UnmarshalJSON(data []byte) error {
 			}
 			c.Value = value
 		default:
-			return ErrChangesFieldNotSupported
+			return wrapErr(errors.New(c.Field), ErrChangesFieldNotSupported)
 		}
 	}
 
@@ -80,9 +81,9 @@ func (hook Webhooks) changes(ctx context.Context, object Object, entry Entry) {
 		go func(change Change) {
 			defer wg.Done()
 
-			fn := hook.onChange
+			fn := hook.handleChange
 			if fn == nil {
-				fn = hook.defaultOnChange
+				fn = hook.handleChangeDefault
 			}
 
 			fn(ctx, object, entry, change)
@@ -92,17 +93,17 @@ func (hook Webhooks) changes(ctx context.Context, object Object, entry Entry) {
 	}
 }
 
-func (hook Webhooks) defaultOnChange(ctx context.Context, object Object, entry Entry, change Change) {
+func (hook Webhooks) handleChangeDefault(ctx context.Context, object Object, entry Entry, change Change) {
 	switch object {
 	case Instagram:
 		switch value := change.Value.(type) {
 		case MentionsFieldValue:
-			if hook.onInstagramMention != nil {
-				hook.onInstagramMention(ctx, entry, value)
+			if hook.handleInstagramMention != nil {
+				hook.handleInstagramMention(ctx, entry, value)
 			}
 		case StoryInsightsFieldValue:
-			if hook.onInstagramStoryInsight != nil {
-				hook.onInstagramStoryInsight(ctx, entry, value)
+			if hook.handleInstagramStoryInsight != nil {
+				hook.handleInstagramStoryInsight(ctx, entry, value)
 			}
 		default:
 			log.Printf("meta webhook event instagram field %s change not supported\n", change.Field)
