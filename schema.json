@@ -1,0 +1,340 @@
+{
+    "type": "object",
+    "properties": {
+        "object": {
+            "type": "string",
+            "enum": [
+                "instagram"
+            ]
+        },
+        "entry": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "integer"
+                    },
+                    "messaging": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "sender": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "id"
+                                    ]
+                                },
+                                "recipient": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "id"
+                                    ]
+                                },
+                                "timestamp": {
+                                    "type": "integer"
+                                },
+                                "message": {
+                                    "type": "object",
+                                    "properties": {
+                                        "mid": {
+                                            "type": "string"
+                                        },
+                                        "text": {
+                                            "type": "string"
+                                        },
+                                        "is_deleted": {
+                                            "type": "boolean"
+                                        },
+                                        "is_echo": {
+                                            "type": "boolean"
+                                        },
+                                        "is_unsupported": {
+                                            "type": "boolean"
+                                        },
+                                        "attachments": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "payload": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "url": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "url"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type",
+                                                    "payload"
+                                                ]
+                                            }
+                                        },
+                                        "referral": {
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "source": {
+                                                    "type": "string"
+                                                },
+                                                "ref": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "type",
+                                                "source"
+                                            ]
+                                        },
+                                        "reply_to": {
+                                            "type": "object",
+                                            "oneOf": [
+                                                {
+                                                    "properties": {
+                                                        "mid": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "mid"
+                                                    ]
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "story": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "url": {
+                                                                    "type": "string"
+                                                                },
+                                                                "id": {
+                                                                    "type": "string"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "story"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "mid"
+                                    ]
+                                },
+                                "postback": {
+                                    "type": "object",
+                                    "properties": {
+                                        "mid": {
+                                            "type": "string"
+                                        },
+                                        "title": {
+                                            "type": "string"
+                                        },
+                                        "payload": {
+                                            "type": "string"
+                                        },
+                                        "referral": {
+                                            "type": "object",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "source": {
+                                                    "type": "string"
+                                                },
+                                                "ref": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "type",
+                                                "source"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "mid",
+                                        "title",
+                                        "payload"
+                                    ]
+                                },
+                                "referral": {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "source": {
+                                            "type": "string"
+                                        },
+                                        "ref": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "type",
+                                        "source"
+                                    ]
+                                }
+                            },
+                            "oneOf": [
+                                {
+                                    "required": [
+                                        "sender",
+                                        "recipient",
+                                        "timestamp",
+                                        "message"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "sender",
+                                        "recipient",
+                                        "timestamp",
+                                        "postback"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "sender",
+                                        "recipient",
+                                        "timestamp",
+                                        "referral"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "changes": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "field": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": "object"
+                                }
+                            },
+                            "oneOf": [
+                                {
+                                    "properties": {
+                                        "field": {
+                                            "const": "mentions"
+                                        },
+                                        "value": {
+                                            "properties": {
+                                                "media_id": {
+                                                    "type": "string"
+                                                },
+                                                "comment_id": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "media_id"
+                                            ]
+                                        }
+                                    }
+                                },
+                                {
+                                    "properties": {
+                                        "field": {
+                                            "const": "story_insights"
+                                        },
+                                        "value": {
+                                            "properties": {
+                                                "media_id": {
+                                                    "type": "string"
+                                                },
+                                                "exits": {
+                                                    "type": "integer"
+                                                },
+                                                "replies": {
+                                                    "type": "integer"
+                                                },
+                                                "reach": {
+                                                    "type": "integer"
+                                                },
+                                                "taps_forward": {
+                                                    "type": "integer"
+                                                },
+                                                "taps_back": {
+                                                    "type": "integer"
+                                                },
+                                                "impressions": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "media_id",
+                                                "exits",
+                                                "replies",
+                                                "reach",
+                                                "taps_forward",
+                                                "taps_back",
+                                                "impressions"
+                                            ]
+                                        }
+                                    }
+                                }
+                            ],
+                            "required": [
+                                "field",
+                                "value"
+                            ]
+                        }
+                    }
+                },
+                "oneOf": [
+                    {
+                        "required": [
+                            "id",
+                            "time",
+                            "messaging"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "id",
+                            "time",
+                            "changes"
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "required": [
+        "object",
+        "entry"
+    ]
+}
