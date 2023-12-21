@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 
 	gometawebhooks "github.com/pnmcosta/go-meta-webhooks"
 )
@@ -235,13 +236,88 @@ func TestHandleChanges(t *testing.T) {
 				"storyInsights": 1,
 			},
 		},
+		{
+			name:   "ctx deadline exceeded",
+			method: http.MethodPost,
+			body: strings.NewReader(`{
+				"object":"instagram", 
+				"entry":[{
+					"id":"123",
+					"time":1569262486134,
+					"changes":[{ 
+							"field": "story_insights",
+							"value": {
+								"media_id": "999",
+								"exits": 1,
+								"replies": 2,
+								"reach": 3,
+								"taps_forward": 4,
+								"taps_back": 5,
+								"impressions": 6
+							}
+					},{ 
+						"field": "story_insights",
+						"value": {
+							"media_id": "999",
+							"exits": 1,
+							"replies": 2,
+							"reach": 3,
+							"taps_forward": 4,
+							"taps_back": 5,
+							"impressions": 6
+						}
+					}]
+				}]
+			}`),
+			expected: gometawebhooks.Event{
+				Object: gometawebhooks.Instagram,
+				Entry: []gometawebhooks.Entry{{
+					Id:   "123",
+					Time: 1569262486134,
+					Changes: []gometawebhooks.Change{{
+						Field: "story_insights",
+						Value: gometawebhooks.StoryInsightsFieldValue{
+							MediaID:     "999",
+							Exits:       1,
+							Replies:     2,
+							Reach:       3,
+							TapsForward: 4,
+							TapsBack:    5,
+							Impressions: 6,
+						},
+					}, {
+						Field: "story_insights",
+						Value: gometawebhooks.StoryInsightsFieldValue{
+							MediaID:     "999",
+							Exits:       1,
+							Replies:     2,
+							Reach:       3,
+							TapsForward: 4,
+							TapsBack:    5,
+							Impressions: 6,
+						},
+					}},
+				}},
+			},
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.HandleInstagramStoryInsight(func(ctx context.Context, entry gometawebhooks.Entry, storyInsights gometawebhooks.StoryInsightsFieldValue) {
+						time.Sleep(scenario.timeout + 50)
+						scenario.trigger("storyInsights")
+					}),
+				}
+			},
+			expectedHandlers: map[string]int{
+				"storyInsights": 1,
+			},
+		},
 	}
 
 	for _, scenario := range scenarios {
 		scenario.test(t, func(t *testing.T) {
 			hooks, req := scenario.setup(t)
 
-			ctx := context.Background()
+			ctx, _ := context.WithTimeout(context.Background(), scenario.timeout)
 
 			result, err := hooks.Handle(ctx, req)
 

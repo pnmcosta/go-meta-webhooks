@@ -12,6 +12,7 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 
 	gometawebhooks "github.com/pnmcosta/go-meta-webhooks"
 )
@@ -27,6 +28,7 @@ type hookScenario struct {
 	expectErr        error
 	expectedHandlers map[string]int
 	handled          []string
+	timeout          time.Duration
 }
 
 func (scenario *hookScenario) test(t *testing.T, f func(t *testing.T)) {
@@ -39,6 +41,10 @@ func (scenario *hookScenario) test(t *testing.T, f func(t *testing.T)) {
 }
 
 func (scenario *hookScenario) setup(t *testing.T) (*gometawebhooks.Webhooks, *http.Request) {
+	if scenario.timeout == 0 {
+		scenario.timeout = 100 * time.Millisecond
+	}
+
 	var options []gometawebhooks.Option
 	if scenario.options != nil {
 		options = scenario.options(scenario)
@@ -84,7 +90,7 @@ func (scenario *hookScenario) assert(t *testing.T, result interface{}, err error
 		t.Errorf("Expected no error, but got: %v", err)
 	}
 
-	if len(scenario.expectedHandlers) > 0 {
+	if scenario.expectedHandlers != nil {
 		counter := map[string]int{}
 		for _, s := range scenario.handled {
 			counter[s]++
