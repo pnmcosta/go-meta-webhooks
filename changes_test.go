@@ -317,7 +317,8 @@ func TestHandleChanges(t *testing.T) {
 		scenario.test(t, func(t *testing.T) {
 			hooks, req := scenario.setup(t)
 
-			ctx, _ := context.WithTimeout(context.Background(), scenario.timeout)
+			ctx, cancel := context.WithTimeout(context.Background(), scenario.timeout)
+			defer cancel()
 
 			result, err := hooks.Handle(ctx, req)
 
