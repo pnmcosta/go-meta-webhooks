@@ -69,7 +69,10 @@
                                                 "type": "object",
                                                 "properties": {
                                                     "type": {
-                                                        "type": "string"
+                                                        "type": "string",
+                                                        "enum":[
+                                                            "audio", "file", "image", "share", "story_mention", "video"
+                                                        ]
                                                     },
                                                     "payload": {
                                                         "type": "object",

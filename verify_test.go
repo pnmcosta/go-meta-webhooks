@@ -11,13 +11,11 @@ func TestVerify(t *testing.T) {
 	scenarios := []hookScenario{
 		{
 			name:      "invalid method",
-			url:       "/webhooks/meta",
 			method:    http.MethodPost,
 			expectErr: gometawebhooks.ErrInvalidHTTPMethod,
 		},
 		{
 			name:      "invalid mode",
-			url:       "/webhooks/meta",
 			method:    http.MethodGet,
 			expectErr: gometawebhooks.ErrVerificationFailed,
 		},
@@ -36,8 +34,10 @@ func TestVerify(t *testing.T) {
 		{
 			name: "verifies",
 			url:  "/webhooks/meta/?hub.mode=subscribe&hub.verify_token=meta_app_webhook_token&hub.challenge=challenge_response",
-			options: []gometawebhooks.Option{
-				gometawebhooks.Options.Token("meta_app_webhook_token"),
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.Token("meta_app_webhook_token"),
+				}
 			},
 			method:   http.MethodGet,
 			expected: "challenge_response",
@@ -46,7 +46,7 @@ func TestVerify(t *testing.T) {
 
 	for _, scenario := range scenarios {
 		scenario.test(t, func(t *testing.T) {
-			hooks, req := scenario.init(t)
+			hooks, req := scenario.setup(t)
 
 			result, err := hooks.Verify(req)
 

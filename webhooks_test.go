@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -16,14 +17,16 @@ import (
 )
 
 type hookScenario struct {
-	name      string
-	method    string
-	url       string
-	headers   map[string]string
-	options   []gometawebhooks.Option
-	body      io.Reader
-	expected  interface{}
-	expectErr error
+	name             string
+	method           string
+	url              string
+	headers          map[string]string
+	options          func(scenario *hookScenario) []gometawebhooks.Option
+	body             io.Reader
+	expected         interface{}
+	expectErr        error
+	expectedHandlers map[string]int
+	handled          []string
 }
 
 func (scenario *hookScenario) test(t *testing.T, f func(t *testing.T)) {
@@ -35,8 +38,13 @@ func (scenario *hookScenario) test(t *testing.T, f func(t *testing.T)) {
 	t.Run(name, f)
 }
 
-func (scenario *hookScenario) init(t *testing.T) (*gometawebhooks.Webhooks, *http.Request) {
-	hooks, err := gometawebhooks.NewWebhooks(scenario.options...)
+func (scenario *hookScenario) setup(t *testing.T) (*gometawebhooks.Webhooks, *http.Request) {
+	var options []gometawebhooks.Option
+	if scenario.options != nil {
+		options = scenario.options(scenario)
+	}
+
+	hooks, err := gometawebhooks.NewWebhooks(options...)
 	if err != nil {
 		t.Fatal(err)
 		return nil, nil
@@ -76,9 +84,24 @@ func (scenario *hookScenario) assert(t *testing.T, result interface{}, err error
 		t.Errorf("Expected no error, but got: %v", err)
 	}
 
+	if len(scenario.expectedHandlers) > 0 {
+		counter := map[string]int{}
+		for _, s := range scenario.handled {
+			counter[s]++
+		}
+
+		if !maps.Equal(counter, scenario.expectedHandlers) {
+			t.Errorf("Expected handlers %v, but got %v", scenario.expectedHandlers, counter)
+		}
+	}
+
 	if !reflect.DeepEqual(result, scenario.expected) {
 		t.Errorf("Expected %v, but got %v", scenario.expected, result)
 	}
+}
+
+func (scenario *hookScenario) trigger(event string) {
+	scenario.handled = append(scenario.handled, event)
 }
 
 func genHmac(secret, payload string) string {

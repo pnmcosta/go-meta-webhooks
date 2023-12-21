@@ -36,8 +36,10 @@ func TestHandle(t *testing.T) {
 		{
 			name:   "missing signature",
 			method: http.MethodPost,
-			options: []gometawebhooks.Option{
-				gometawebhooks.Options.Secret("very_secret"),
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.Secret("very_secret"),
+				}
 			},
 			body:      strings.NewReader(`{}`),
 			expectErr: gometawebhooks.ErrMissingHubSignatureHeader,
@@ -48,8 +50,10 @@ func TestHandle(t *testing.T) {
 			headers: map[string]string{
 				"x_hub_signature_256": "1",
 			},
-			options: []gometawebhooks.Option{
-				gometawebhooks.Options.Secret("very_secret"),
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.Secret("very_secret"),
+				}
 			},
 			body:      strings.NewReader(`{}`),
 			expectErr: gometawebhooks.ErrHMACVerificationFailed,
@@ -60,8 +64,10 @@ func TestHandle(t *testing.T) {
 			headers: map[string]string{
 				"x_hub_signature_256": genHmac("very_secret", `{"object":"instagram", "entry":[]}`),
 			},
-			options: []gometawebhooks.Option{
-				gometawebhooks.Options.Secret("very_secret"),
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.Secret("very_secret"),
+				}
 			},
 			body: strings.NewReader(`{"object":"instagram", "entry":[]}`),
 			expected: gometawebhooks.Event{
@@ -94,7 +100,7 @@ func TestHandle(t *testing.T) {
 
 	for _, scenario := range scenarios {
 		scenario.test(t, func(t *testing.T) {
-			hooks, req := scenario.init(t)
+			hooks, req := scenario.setup(t)
 
 			ctx := context.Background()
 

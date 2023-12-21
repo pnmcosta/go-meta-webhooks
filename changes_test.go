@@ -40,6 +40,68 @@ func TestHandleChanges(t *testing.T) {
 			},
 		},
 		{
+			name:   "handles many",
+			method: http.MethodPost,
+			body: strings.NewReader(`{
+				"object":"instagram", 
+				"entry":[{
+					"id":"123",
+					"time":1569262486134,
+					"changes":[{ 
+							"field": "mentions",
+							"value": {
+								"media_id": "999"
+							}
+					},{ 
+						"field": "story_insights",
+						"value": {
+							"media_id": "999",
+							"exits": 1,
+							"replies": 2,
+							"reach": 3,
+							"taps_forward": 4,
+							"taps_back": 5,
+							"impressions": 6
+						}
+					}]
+				}]
+			}`),
+			expected: gometawebhooks.Event{
+				Object: gometawebhooks.Instagram,
+				Entry: []gometawebhooks.Entry{{
+					Id:   "123",
+					Time: 1569262486134,
+					Changes: []gometawebhooks.Change{{
+						Field: "mentions",
+						Value: gometawebhooks.MentionsFieldValue{
+							MediaID: "999",
+						},
+					}, {
+						Field: "story_insights",
+						Value: gometawebhooks.StoryInsightsFieldValue{
+							MediaID:     "999",
+							Exits:       1,
+							Replies:     2,
+							Reach:       3,
+							TapsForward: 4,
+							TapsBack:    5,
+							Impressions: 6,
+						},
+					}},
+				}},
+			},
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.HandleChange(func(ctx context.Context, o gometawebhooks.Object, e gometawebhooks.Entry, c gometawebhooks.Change) {
+						scenario.trigger("change")
+					}),
+				}
+			},
+			expectedHandlers: map[string]int{
+				"change": 2,
+			},
+		},
+		{
 			name:   "caption mention",
 			method: http.MethodPost,
 			body: strings.NewReader(`{
@@ -67,6 +129,16 @@ func TestHandleChanges(t *testing.T) {
 						},
 					}},
 				}},
+			},
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.HandleInstagramMention(func(ctx context.Context, entry gometawebhooks.Entry, mention gometawebhooks.MentionsFieldValue) {
+						scenario.trigger("mention")
+					}),
+				}
+			},
+			expectedHandlers: map[string]int{
+				"mention": 1,
 			},
 		},
 		{
@@ -99,6 +171,16 @@ func TestHandleChanges(t *testing.T) {
 						},
 					}},
 				}},
+			},
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.HandleInstagramMention(func(ctx context.Context, entry gometawebhooks.Entry, mention gometawebhooks.MentionsFieldValue) {
+						scenario.trigger("mention")
+					}),
+				}
+			},
+			expectedHandlers: map[string]int{
+				"mention": 1,
 			},
 		},
 		{
@@ -142,12 +224,22 @@ func TestHandleChanges(t *testing.T) {
 					}},
 				}},
 			},
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.HandleInstagramStoryInsight(func(ctx context.Context, entry gometawebhooks.Entry, storyInsights gometawebhooks.StoryInsightsFieldValue) {
+						scenario.trigger("storyInsights")
+					}),
+				}
+			},
+			expectedHandlers: map[string]int{
+				"storyInsights": 1,
+			},
 		},
 	}
 
 	for _, scenario := range scenarios {
 		scenario.test(t, func(t *testing.T) {
-			hooks, req := scenario.init(t)
+			hooks, req := scenario.setup(t)
 
 			ctx := context.Background()
 
