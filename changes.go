@@ -3,7 +3,6 @@ package gometawebhooks
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"sync"
@@ -60,8 +59,6 @@ func (c *Change) UnmarshalJSON(data []byte) error {
 				return wrapErr(err, ErrParsingChanges)
 			}
 			c.Value = value
-		default:
-			return wrapErr(errors.New(c.Field), ErrChangesFieldNotSupported)
 		}
 	}
 
@@ -75,11 +72,23 @@ func (hook Webhooks) changes(ctx context.Context, object Object, entry Entry) {
 
 	var wg sync.WaitGroup
 	for _, change := range entry.Changes {
+		select {
+		case <-ctx.Done():
+			break
+		default:
+		}
+
 		change := change
 		wg.Add(1)
 
 		go func(change Change) {
 			defer wg.Done()
+
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
 
 			fn := hook.handleChange
 			if fn == nil {
@@ -106,7 +115,7 @@ func (hook Webhooks) handleChangeDefault(ctx context.Context, object Object, ent
 				hook.handleInstagramStoryInsight(ctx, entry, value)
 			}
 		default:
-			log.Printf("meta webhook event instagram field %s change not supported\n", change.Field)
+			log.Printf("meta webhook event %v entry %s change field %s not supported\n", object, entry.Id, change.Field)
 		}
 	default:
 		log.Printf("meta webhook event object %s change not supported\n", object)

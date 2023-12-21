@@ -95,16 +95,34 @@ func (hooks Webhooks) Handle(ctx context.Context, r *http.Request) (Event, error
 	}
 
 	for _, entry := range event.Entry {
+		select {
+		case <-ctx.Done():
+			break
+		default:
+		}
+
 		entry := entry
 
 		var wg sync.WaitGroup
 		wg.Add(len(fns))
 
 		for _, fn := range fns {
+			select {
+			case <-ctx.Done():
+				break
+			default:
+			}
+
 			fn := fn
 
 			go func(entry Entry) {
 				defer wg.Done()
+
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
 
 				fn(ctx, event.Object, entry)
 			}(entry)

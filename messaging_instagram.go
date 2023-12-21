@@ -3,11 +3,11 @@ package gometawebhooks
 import "context"
 
 func (hook Webhooks) handleInstagramMessagingDefault(ctx context.Context, entry Entry, messaging Messaging) {
-	if messaging.Message.IsEcho {
-		return
-	}
-
 	if messaging.Message.Id != "" {
+		if messaging.Message.IsEcho {
+			return
+		}
+
 		if hook.handleInstagramMessage != nil {
 			hook.handleInstagramMessage(ctx, messaging.Sender.Id, messaging.Recipient.Id, messaging.Timestamp, messaging.Message)
 		}

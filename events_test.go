@@ -104,7 +104,3 @@ func TestHandle(t *testing.T) {
 		})
 	}
 }
-
-func handle(t *testing.T) {
-
-}

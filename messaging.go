@@ -65,11 +65,23 @@ func (hook Webhooks) messaging(ctx context.Context, object Object, entry Entry) 
 
 	var wg sync.WaitGroup
 	for _, messaging := range entry.Messaging {
+		select {
+		case <-ctx.Done():
+			break
+		default:
+		}
+
 		messaging := messaging
 		wg.Add(1)
 
 		go func(messaging Messaging) {
 			defer wg.Done()
+
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
 
 			fn := hook.handleMessaging
 			if fn == nil {
