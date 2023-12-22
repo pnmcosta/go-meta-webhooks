@@ -56,3 +56,14 @@ func (MetaWebhookOptions) InstagramChangesHandler(fn InstagramChangesHandler) Op
 		return nil
 	}
 }
+
+func (MetaWebhookOptions) InstagramHandler(fn InstagramHandler) Option {
+	return func(hook *Webhooks) error {
+		hook.instagramMessageHandler = fn
+		hook.instagramPostbackHandler = fn
+		hook.instagramReferralHandler = fn
+		hook.instagramMentionHandler = fn
+		hook.instagramStoryInsightsHandler = fn
+		return nil
+	}
+}

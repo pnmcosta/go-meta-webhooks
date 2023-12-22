@@ -20,10 +20,9 @@ type Webhooks struct {
 	changesHandler   ChangesHandler
 	messagingHandler MessagingHandler
 
-	instagramMessageHandler  InstagramMessageHandler
-	instagramPostbackHandler InstagramPostbackHandler
-	instagramReferralHandler InstagramReferralHandler
-
+	instagramMessageHandler       InstagramMessageHandler
+	instagramPostbackHandler      InstagramPostbackHandler
+	instagramReferralHandler      InstagramReferralHandler
 	instagramMentionHandler       InstagramMentionHandler
 	instagramStoryInsightsHandler InstagramStoryInsightsHandler
 }
