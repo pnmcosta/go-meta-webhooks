@@ -9,7 +9,7 @@ var Options = MetaWebhookOptions{}
 // MetaWebhookOptions is a namespace for configuration option methods
 type MetaWebhookOptions struct{}
 
-// Secret registers the Facebook APP Secret
+// Sets the Facebook APP Secret
 func (MetaWebhookOptions) Secret(secret string) Option {
 	return func(hook *Webhooks) error {
 		hook.secret = secret
@@ -17,7 +17,7 @@ func (MetaWebhookOptions) Secret(secret string) Option {
 	}
 }
 
-// Token registers the Facebook verify_token
+// Sets the Facebook APP webhook subscription verify token
 func (MetaWebhookOptions) Token(token string) Option {
 	return func(hook *Webhooks) error {
 		hook.token = token
@@ -25,7 +25,7 @@ func (MetaWebhookOptions) Token(token string) Option {
 	}
 }
 
-// Overrides the default Handler, please note this will override child handler options.
+// Overrides the default EntryHandler, please note this will override object handler options.
 func (MetaWebhookOptions) EntryHandler(h EntryHandler) Option {
 	return func(hook *Webhooks) error {
 		hook.entryHandler = h
@@ -33,7 +33,7 @@ func (MetaWebhookOptions) EntryHandler(h EntryHandler) Option {
 	}
 }
 
-// Overrides the default ChangesHandler, please note this will override child handler options.
+// Overrides the default ChangesHandler, please note this will override object handler options.
 func (MetaWebhookOptions) ChangesHandler(h ChangesHandler) Option {
 	return func(hook *Webhooks) error {
 		hook.changesHandler = h
@@ -41,7 +41,7 @@ func (MetaWebhookOptions) ChangesHandler(h ChangesHandler) Option {
 	}
 }
 
-// Overrides the default MessagingHandler, please note this will override child handler options.
+// Overrides the default MessagingHandler, please note this will override object handler options.
 func (MetaWebhookOptions) MessagingHandler(h MessagingHandler) Option {
 	return func(hook *Webhooks) error {
 		hook.messagingHandler = h

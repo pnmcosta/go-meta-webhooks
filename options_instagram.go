@@ -1,6 +1,6 @@
 package gometawebhooks
 
-// Handle https://developers.facebook.com/docs/instagram-api/guides/mentions
+// Sets the InstagramMentionHandler, see https://developers.facebook.com/docs/instagram-api/guides/mentions
 func (MetaWebhookOptions) InstagramMentionHandler(fn InstagramMentionHandler) Option {
 	return func(hook *Webhooks) error {
 		hook.instagramMentionHandler = fn
@@ -8,7 +8,7 @@ func (MetaWebhookOptions) InstagramMentionHandler(fn InstagramMentionHandler) Op
 	}
 }
 
-// Handle https://developers.facebook.com/docs/instagram-api/guides/webhooks#capturing-story-insights
+// Sets the InstagramStoryInsightsHandler, see https://developers.facebook.com/docs/instagram-api/guides/webhooks#capturing-story-insights
 func (MetaWebhookOptions) InstagramStoryInsightsHandler(fn InstagramStoryInsightsHandler) Option {
 	return func(hook *Webhooks) error {
 		hook.instagramStoryInsightsHandler = fn
@@ -16,7 +16,7 @@ func (MetaWebhookOptions) InstagramStoryInsightsHandler(fn InstagramStoryInsight
 	}
 }
 
-// Handle https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook/#messages
+// Sets the InstagramMessageHandler, see https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook/#messages
 func (MetaWebhookOptions) InstagramMessageHandler(fn InstagramMessageHandler) Option {
 	return func(hook *Webhooks) error {
 		hook.instagramMessageHandler = fn
@@ -24,7 +24,7 @@ func (MetaWebhookOptions) InstagramMessageHandler(fn InstagramMessageHandler) Op
 	}
 }
 
-// Handle https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook/#messaging-postbacks
+// Sets the InstagramPostbackHandler, see https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook/#messaging-postbacks
 func (MetaWebhookOptions) InstagramPostbackHandler(fn InstagramPostbackHandler) Option {
 	return func(hook *Webhooks) error {
 		hook.instagramPostbackHandler = fn
@@ -32,7 +32,7 @@ func (MetaWebhookOptions) InstagramPostbackHandler(fn InstagramPostbackHandler) 
 	}
 }
 
-// Handle https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook/#igme
+// Sets the InstagramReferralHandler, see https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook/#igme
 func (MetaWebhookOptions) InstagramReferralHandler(fn InstagramReferralHandler) Option {
 	return func(hook *Webhooks) error {
 		hook.instagramReferralHandler = fn
@@ -40,6 +40,7 @@ func (MetaWebhookOptions) InstagramReferralHandler(fn InstagramReferralHandler) 
 	}
 }
 
+// Sets all InstagramMessaging handlers
 func (MetaWebhookOptions) InstagramMessagingHandler(fn InstagramMessagingHandler) Option {
 	return func(hook *Webhooks) error {
 		hook.instagramMessageHandler = fn
@@ -49,6 +50,7 @@ func (MetaWebhookOptions) InstagramMessagingHandler(fn InstagramMessagingHandler
 	}
 }
 
+// Sets all InstagramChanges handlers
 func (MetaWebhookOptions) InstagramChangesHandler(fn InstagramChangesHandler) Option {
 	return func(hook *Webhooks) error {
 		hook.instagramMentionHandler = fn
@@ -57,6 +59,7 @@ func (MetaWebhookOptions) InstagramChangesHandler(fn InstagramChangesHandler) Op
 	}
 }
 
+// Sets all Instagram handlers
 func (MetaWebhookOptions) InstagramHandler(fn InstagramHandler) Option {
 	return func(hook *Webhooks) error {
 		hook.instagramMessageHandler = fn
