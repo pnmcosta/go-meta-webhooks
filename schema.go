@@ -17,7 +17,7 @@ var (
 	ErrInvalidPayload = fmt.Errorf("invalid payload: %w", ErrWebhooks)
 )
 
-func (hook *Webhooks) compileSchema() error {
+func (hooks *Webhooks) compileSchema() error {
 	if validationSchema != nil {
 		return nil
 	}
@@ -30,7 +30,7 @@ func (hook *Webhooks) compileSchema() error {
 	return nil
 }
 
-func (hook Webhooks) validate(payload interface{}) error {
+func (hooks Webhooks) validate(payload interface{}) error {
 	if validationSchema == nil {
 		return ErrMissingSchema
 	}

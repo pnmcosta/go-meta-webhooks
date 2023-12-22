@@ -55,7 +55,7 @@ func (scenario *hookScenario) setup(t *testing.T) (*gometawebhooks.Webhooks, *ht
 		options = scenario.options(scenario)
 	}
 
-	hooks, err := gometawebhooks.NewWebhooks(options...)
+	hooks, err := gometawebhooks.New(options...)
 	if err != nil {
 		t.Fatal(err)
 		return nil, nil

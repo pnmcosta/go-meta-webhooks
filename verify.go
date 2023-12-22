@@ -10,7 +10,7 @@ var (
 )
 
 // Verify Meta Webhooks GET requests, when subscribing on App dashboard to objects and fields.
-func (hook Webhooks) Verify(r *http.Request) (string, error) {
+func (hooks Webhooks) Verify(r *http.Request) (string, error) {
 	if r.Method != http.MethodGet {
 		return "", ErrInvalidHTTPMethod
 	}
@@ -18,7 +18,7 @@ func (hook Webhooks) Verify(r *http.Request) (string, error) {
 	mode := r.URL.Query().Get("hub.mode")
 	token := r.URL.Query().Get("hub.verify_token")
 	challenge := r.URL.Query().Get("hub.challenge")
-	if mode != "subscribe" || token != hook.token || challenge == "" {
+	if mode != "subscribe" || token != hooks.token || challenge == "" {
 		return "", ErrVerificationFailed
 	}
 	return challenge, nil

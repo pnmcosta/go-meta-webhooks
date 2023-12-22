@@ -11,40 +11,40 @@ type MetaWebhookOptions struct{}
 
 // Sets the Facebook APP Secret
 func (MetaWebhookOptions) Secret(secret string) Option {
-	return func(hook *Webhooks) error {
-		hook.secret = secret
+	return func(hooks *Webhooks) error {
+		hooks.secret = secret
 		return nil
 	}
 }
 
 // Sets the Facebook APP webhook subscription verify token
 func (MetaWebhookOptions) Token(token string) Option {
-	return func(hook *Webhooks) error {
-		hook.token = token
+	return func(hooks *Webhooks) error {
+		hooks.token = token
 		return nil
 	}
 }
 
 // Overrides the default EntryHandler, please note this will override object handler options.
 func (MetaWebhookOptions) EntryHandler(h EntryHandler) Option {
-	return func(hook *Webhooks) error {
-		hook.entryHandler = h
+	return func(hooks *Webhooks) error {
+		hooks.entryHandler = h
 		return nil
 	}
 }
 
 // Overrides the default ChangesHandler, please note this will override object handler options.
 func (MetaWebhookOptions) ChangesHandler(h ChangesHandler) Option {
-	return func(hook *Webhooks) error {
-		hook.changesHandler = h
+	return func(hooks *Webhooks) error {
+		hooks.changesHandler = h
 		return nil
 	}
 }
 
 // Overrides the default MessagingHandler, please note this will override object handler options.
 func (MetaWebhookOptions) MessagingHandler(h MessagingHandler) Option {
-	return func(hook *Webhooks) error {
-		hook.messagingHandler = h
+	return func(hooks *Webhooks) error {
+		hooks.messagingHandler = h
 		return nil
 	}
 }

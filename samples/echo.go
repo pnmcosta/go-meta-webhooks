@@ -34,7 +34,7 @@ func setup() (*echo.Echo, error) {
 		logger: e.Logger,
 	}
 
-	hooks, err := gometawebhooks.NewWebhooks(
+	hooks, err := gometawebhooks.New(
 		// gometawebhooks.Options.Secret("my-app-secret"),
 		gometawebhooks.Options.Token(MetaWebhooksToken),
 		gometawebhooks.Options.InstagramHandler(handler),

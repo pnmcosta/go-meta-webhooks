@@ -28,7 +28,7 @@ type Webhooks struct {
 }
 
 // Creates and returns a webhooks instance
-func NewWebhooks(options ...Option) (*Webhooks, error) {
+func New(options ...Option) (*Webhooks, error) {
 	hooks := &Webhooks{}
 
 	for _, opt := range options {

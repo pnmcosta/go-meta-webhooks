@@ -62,7 +62,7 @@ type MessagingHandler interface {
 	Messaging(ctx context.Context, object Object, entryId string, entryTime time.Time, messaging Messaging)
 }
 
-func (hook Webhooks) messaging(ctx context.Context, object Object, entry Entry) {
+func (hooks Webhooks) messaging(ctx context.Context, object Object, entry Entry) {
 	if len(entry.Messaging) == 0 {
 		return
 	}
@@ -80,7 +80,7 @@ func (hook Webhooks) messaging(ctx context.Context, object Object, entry Entry) 
 		go func() {
 			defer wg.Done()
 
-			hook.messagingHandler.Messaging(ctx, object, entry.Id, unixTime(entry.Time), messaging)
+			hooks.messagingHandler.Messaging(ctx, object, entry.Id, unixTime(entry.Time), messaging)
 		}()
 	}
 
