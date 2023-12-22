@@ -280,7 +280,7 @@ func TestHandleChange(t *testing.T) {
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
 					gometawebhooks.Options.InstagramStoryInsightsHandler(testHandler{func() {
-						time.Sleep(scenario.timeout + 1)
+						time.Sleep(scenario.timeout + 2)
 						scenario.trigger("storyInsights")
 					}}),
 				}
