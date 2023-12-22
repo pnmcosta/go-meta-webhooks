@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 
@@ -27,8 +28,10 @@ type hookScenario struct {
 	expected         interface{}
 	expectErr        error
 	expectedHandlers map[string]int
-	handled          []string
 	timeout          time.Duration
+
+	handled []string
+	mutex   *sync.RWMutex
 }
 
 func (scenario *hookScenario) test(t *testing.T, f func(t *testing.T)) {
@@ -41,8 +44,10 @@ func (scenario *hookScenario) test(t *testing.T, f func(t *testing.T)) {
 }
 
 func (scenario *hookScenario) setup(t *testing.T) (*gometawebhooks.Webhooks, *http.Request) {
+	scenario.mutex = &sync.RWMutex{}
+
 	if scenario.timeout == 0 {
-		scenario.timeout = 100 * time.Millisecond
+		scenario.timeout = 5 * time.Millisecond
 	}
 
 	var options []gometawebhooks.Option
@@ -107,6 +112,8 @@ func (scenario *hookScenario) assert(t *testing.T, result interface{}, err error
 }
 
 func (scenario *hookScenario) trigger(event string) {
+	scenario.mutex.Lock()
+	defer scenario.mutex.Unlock()
 	scenario.handled = append(scenario.handled, event)
 }
 

@@ -70,7 +70,14 @@ func (hook Webhooks) changes(ctx context.Context, object Object, entry Entry) {
 		return
 	}
 
+	instagramChange := hook.handleInstagramChange
+	if instagramChange == nil {
+		instagramChange = hook.handleInstagramChangeDefault
+	}
+
 	var wg sync.WaitGroup
+	wg.Add(len(entry.Changes))
+
 	for _, change := range entry.Changes {
 		select {
 		case <-ctx.Done():
@@ -79,45 +86,28 @@ func (hook Webhooks) changes(ctx context.Context, object Object, entry Entry) {
 		}
 
 		change := change
-		wg.Add(1)
 
-		go func(change Change) {
+		go func() {
 			defer wg.Done()
 
-			select {
-			case <-ctx.Done():
-				return
-			default:
-			}
-
-			fn := hook.handleChange
-			if fn == nil {
-				fn = hook.handleChangeDefault
-			}
-
-			fn(ctx, object, entry, change)
-		}(change)
-
-		wg.Wait()
+			instagramChange(ctx, entry, change)
+		}()
 	}
+
+	wg.Wait()
 }
 
-func (hook Webhooks) handleChangeDefault(ctx context.Context, object Object, entry Entry, change Change) {
-	switch object {
-	case Instagram:
-		switch value := change.Value.(type) {
-		case MentionsFieldValue:
-			if hook.handleInstagramMention != nil {
-				hook.handleInstagramMention(ctx, entry, value)
-			}
-		case StoryInsightsFieldValue:
-			if hook.handleInstagramStoryInsight != nil {
-				hook.handleInstagramStoryInsight(ctx, entry, value)
-			}
-		default:
-			log.Printf("meta webhook event %v entry %s change field %s not supported\n", object, entry.Id, change.Field)
+func (hook Webhooks) handleInstagramChangeDefault(ctx context.Context, entry Entry, change Change) {
+	switch value := change.Value.(type) {
+	case MentionsFieldValue:
+		if hook.handleInstagramMention != nil {
+			hook.handleInstagramMention(ctx, entry, value)
+		}
+	case StoryInsightsFieldValue:
+		if hook.handleInstagramStoryInsight != nil {
+			hook.handleInstagramStoryInsight(ctx, entry, value)
 		}
 	default:
-		log.Printf("meta webhook event object %s change not supported\n", object)
+		log.Printf("meta webhook event %v entry %s change field %s not supported\n", Instagram, entry.Id, change.Field)
 	}
 }

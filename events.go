@@ -89,11 +89,13 @@ func (hooks Webhooks) Handle(ctx context.Context, r *http.Request) (Event, error
 		return event, wrapErr(err, ErrParsingEvent)
 	}
 
-	fns := []func(context.Context, Object, Entry){
-		hooks.changes,
-		hooks.messaging,
+	fn := hooks.handleEntry
+	if fn == nil {
+		fn = hooks.handleEntryDefault
 	}
 
+	var wg sync.WaitGroup
+	wg.Add(len(event.Entry))
 	for _, entry := range event.Entry {
 		select {
 		case <-ctx.Done():
@@ -103,33 +105,39 @@ func (hooks Webhooks) Handle(ctx context.Context, r *http.Request) (Event, error
 
 		entry := entry
 
-		var wg sync.WaitGroup
-		wg.Add(len(fns))
+		go func() {
+			defer wg.Done()
 
-		for _, fn := range fns {
-			select {
-			case <-ctx.Done():
-				break
-			default:
-			}
+			fn(ctx, event.Object, entry)
+		}()
+	}
 
-			fn := fn
+	wg.Wait()
 
-			go func(entry Entry) {
-				defer wg.Done()
-
-				select {
-				case <-ctx.Done():
-					return
-				default:
-				}
-
-				fn(ctx, event.Object, entry)
-			}(entry)
-		}
-
-		wg.Wait()
+	select {
+	case <-ctx.Done():
+		return event, ctx.Err()
+	default:
 	}
 
 	return event, nil
+}
+
+func (hook Webhooks) handleEntryDefault(ctx context.Context, object Object, entry Entry) {
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+
+		hook.changes(ctx, object, entry)
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		hook.messaging(ctx, object, entry)
+	}()
+
+	wg.Wait()
 }

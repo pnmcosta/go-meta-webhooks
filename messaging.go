@@ -2,7 +2,6 @@ package gometawebhooks
 
 import (
 	"context"
-	"log"
 	"sync"
 )
 
@@ -63,7 +62,13 @@ func (hook Webhooks) messaging(ctx context.Context, object Object, entry Entry) 
 		return
 	}
 
+	instagramMessaging := hook.handleInstagramMessaging
+	if instagramMessaging == nil {
+		instagramMessaging = hook.handleInstagramMessagingDefault
+	}
+
 	var wg sync.WaitGroup
+	wg.Add(len(entry.Messaging))
 	for _, messaging := range entry.Messaging {
 		select {
 		case <-ctx.Done():
@@ -72,39 +77,12 @@ func (hook Webhooks) messaging(ctx context.Context, object Object, entry Entry) 
 		}
 
 		messaging := messaging
-		wg.Add(1)
-
-		go func(messaging Messaging) {
+		go func() {
 			defer wg.Done()
 
-			select {
-			case <-ctx.Done():
-				return
-			default:
-			}
-
-			fn := hook.handleMessaging
-			if fn == nil {
-				fn = hook.handleMessagingDefault
-			}
-
-			fn(ctx, object, entry, messaging)
-		}(messaging)
-
-		wg.Wait()
+			instagramMessaging(ctx, entry, messaging)
+		}()
 	}
-}
 
-func (hook Webhooks) handleMessagingDefault(ctx context.Context, object Object, entry Entry, messaging Messaging) {
-	switch object {
-	case Instagram:
-		fn := hook.handleInstagramMessaging
-		if fn == nil {
-			fn = hook.handleInstagramMessagingDefault
-		}
-
-		fn(ctx, entry, messaging)
-	default:
-		log.Printf("meta webhook event object %s messaging not supported\n", object)
-	}
+	wg.Wait()
 }

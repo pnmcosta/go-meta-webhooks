@@ -18,7 +18,7 @@ func (MetaWebhookOptions) HandleInstagramStoryInsight(fn func(ctx context.Contex
 	}
 }
 
-// Overrides this libraries default bevaviour to handle Instagram messaging echos, deleted, postbacks, referrals, reads and reactions
+// Overrides the default bevaviour to handle Instagram messaging entries.
 // Please note this will prevent other handle options from executing.
 func (MetaWebhookOptions) HandleInstagramMessaging(fn func(ctx context.Context, entry Entry, messaging Messaging)) Option {
 	return func(hook *Webhooks) error {
@@ -47,6 +47,15 @@ func (MetaWebhookOptions) HandleInstagramPostback(fn func(ctx context.Context, s
 func (MetaWebhookOptions) HandleInstagramReferral(fn func(ctx context.Context, sender string, recipient string, time int64, referral Referral)) Option {
 	return func(hook *Webhooks) error {
 		hook.handleInstagramReferral = fn
+		return nil
+	}
+}
+
+// Overrides the default bevaviour to handle Instagram field changes.
+// Please note this will prevent other handle options from executing.
+func (MetaWebhookOptions) HandleInstagramChange(fn func(ctx context.Context, entry Entry, change Change)) Option {
+	return func(hook *Webhooks) error {
+		hook.handleInstagramChange = fn
 		return nil
 	}
 }

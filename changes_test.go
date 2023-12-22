@@ -10,7 +10,7 @@ import (
 	gometawebhooks "github.com/pnmcosta/go-meta-webhooks"
 )
 
-func TestHandleChanges(t *testing.T) {
+func TestHandleChange(t *testing.T) {
 	scenarios := []hookScenario{
 		{
 			name:   "invalid field",
@@ -93,7 +93,7 @@ func TestHandleChanges(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.HandleChange(func(ctx context.Context, o gometawebhooks.Object, e gometawebhooks.Entry, c gometawebhooks.Change) {
+					gometawebhooks.Options.HandleInstagramChange(func(ctx context.Context, e gometawebhooks.Entry, c gometawebhooks.Change) {
 						scenario.trigger("change")
 					}),
 				}
@@ -237,7 +237,7 @@ func TestHandleChanges(t *testing.T) {
 			},
 		},
 		{
-			name:   "ctx deadline exceeded",
+			name:   "deadline exceeded",
 			method: http.MethodPost,
 			body: strings.NewReader(`{
 				"object":"instagram", 
@@ -255,17 +255,6 @@ func TestHandleChanges(t *testing.T) {
 								"taps_back": 5,
 								"impressions": 6
 							}
-					},{ 
-						"field": "story_insights",
-						"value": {
-							"media_id": "999",
-							"exits": 1,
-							"replies": 2,
-							"reach": 3,
-							"taps_forward": 4,
-							"taps_back": 5,
-							"impressions": 6
-						}
 					}]
 				}]
 			}`),
@@ -285,31 +274,19 @@ func TestHandleChanges(t *testing.T) {
 							TapsBack:    5,
 							Impressions: 6,
 						},
-					}, {
-						Field: "story_insights",
-						Value: gometawebhooks.StoryInsightsFieldValue{
-							MediaID:     "999",
-							Exits:       1,
-							Replies:     2,
-							Reach:       3,
-							TapsForward: 4,
-							TapsBack:    5,
-							Impressions: 6,
-						},
 					}},
 				}},
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
 					gometawebhooks.Options.HandleInstagramStoryInsight(func(ctx context.Context, entry gometawebhooks.Entry, storyInsights gometawebhooks.StoryInsightsFieldValue) {
-						time.Sleep(scenario.timeout + 50)
-						scenario.trigger("storyInsights")
+						time.Sleep(scenario.timeout + 1)
+						scenario.trigger("storyInsight")
 					}),
 				}
 			},
-			expectedHandlers: map[string]int{
-				"storyInsights": 1,
-			},
+			expectErr:        context.DeadlineExceeded,
+			expectedHandlers: map[string]int{"storyInsight": 1},
 		},
 	}
 

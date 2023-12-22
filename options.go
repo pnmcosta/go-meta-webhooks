@@ -27,16 +27,11 @@ func (MetaWebhookOptions) Token(token string) Option {
 	}
 }
 
-func (MetaWebhookOptions) HandleChange(fn func(context.Context, Object, Entry, Change)) Option {
+// Overrides the default bevaviour to handle Object event entries.
+// Please note this will prevent other handle options from executing.
+func (MetaWebhookOptions) HandleEntry(fn func(ctx context.Context, object Object, entry Entry)) Option {
 	return func(hook *Webhooks) error {
-		hook.handleChange = fn
-		return nil
-	}
-}
-
-func (MetaWebhookOptions) HandleMessaging(fn func(context.Context, Object, Entry, Messaging)) Option {
-	return func(hook *Webhooks) error {
-		hook.handleMessaging = fn
+		hook.handleEntry = fn
 		return nil
 	}
 }

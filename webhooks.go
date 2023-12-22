@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	ErrWebhooks       = errors.New("GoMetaWebhooks")
+	ErrWebhooks       = errors.New("gometawebhooks")
 	ErrApplyingOption = fmt.Errorf("error applying option: %w", ErrWebhooks)
 )
 
@@ -16,19 +16,19 @@ type Webhooks struct {
 	token  string
 	secret string
 
-	handleChange    func(ctx context.Context, object Object, entry Entry, change Change)
-	handleMessaging func(ctx context.Context, object Object, entry Entry, messaging Messaging)
+	handleEntry func(ctx context.Context, object Object, entry Entry)
 
+	handleInstagramChange       func(ctx context.Context, entry Entry, change Change)
 	handleInstagramMention      func(ctx context.Context, entry Entry, mention MentionsFieldValue)
 	handleInstagramStoryInsight func(ctx context.Context, entry Entry, storyInsights StoryInsightsFieldValue)
-	handleInstagramMessaging    func(ctx context.Context, entry Entry, messaging Messaging)
 
-	handleInstagramMessage  func(ctx context.Context, sender string, recipient string, time int64, message Message)
-	handleInstagramPostback func(ctx context.Context, sender string, recipient string, time int64, postback Postback)
-	handleInstagramReferral func(ctx context.Context, sender string, recipient string, time int64, referral Referral)
+	handleInstagramMessaging func(ctx context.Context, entry Entry, messaging Messaging)
+	handleInstagramMessage   func(ctx context.Context, sender string, recipient string, time int64, message Message)
+	handleInstagramPostback  func(ctx context.Context, sender string, recipient string, time int64, postback Postback)
+	handleInstagramReferral  func(ctx context.Context, sender string, recipient string, time int64, referral Referral)
 }
 
-// Creates and returns a Webhooks instance
+// Creates and returns a webhooks instance
 func NewWebhooks(options ...Option) (*Webhooks, error) {
 	hooks := &Webhooks{}
 
