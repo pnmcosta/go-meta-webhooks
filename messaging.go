@@ -68,7 +68,6 @@ func (hooks Webhooks) messaging(ctx context.Context, object Object, entry Entry)
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(len(entry.Messaging))
 	for _, messaging := range entry.Messaging {
 		select {
 		case <-ctx.Done():
@@ -76,6 +75,7 @@ func (hooks Webhooks) messaging(ctx context.Context, object Object, entry Entry)
 		default:
 		}
 
+		wg.Add(1)
 		messaging := messaging
 		go func() {
 			defer wg.Done()

@@ -76,13 +76,14 @@ func (hooks Webhooks) Handle(ctx context.Context, r *http.Request) (Event, error
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(len(event.Entry))
 	for _, entry := range event.Entry {
 		select {
 		case <-ctx.Done():
 			break
 		default:
 		}
+
+		wg.Add(1)
 
 		entry := entry
 

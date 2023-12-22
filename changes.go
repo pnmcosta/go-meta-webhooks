@@ -74,7 +74,6 @@ func (hooks Webhooks) changes(ctx context.Context, object Object, entry Entry) {
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(len(entry.Changes))
 
 	for _, change := range entry.Changes {
 		select {
@@ -82,6 +81,7 @@ func (hooks Webhooks) changes(ctx context.Context, object Object, entry Entry) {
 			break
 		default:
 		}
+		wg.Add(1)
 
 		change := change
 
