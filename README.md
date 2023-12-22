@@ -23,13 +23,15 @@ go get github.com/pnmcosta/go-meta-webhooks
 import gometawebhooks "github.com/pnmcosta/go-meta-webhooks"
 ```
 
-## Use case
+## Use Cases
 
 Wire-in this package with any HTTP server package, an example using [Echo](https://echo.labstack.com/) is provided in the [samples](./samples/) directory submodule of this repository. 
 
 The example is an implementation of the [InstagramHandler](./handler_instagram.go) which covers supported Instagram field changes and messaging.
 
-However, you can granually implement each handler for scoped support instead. For example, to only handle [InstagramMessageHandler](./messaging_instagram.go) event instead:
+### Scoped Handlers
+
+You can granually implement each handler for scoped support instead. For example, to only handle [InstagramMessageHandler](./messaging_instagram.go) event only instead:
 
 ```go
 package main
@@ -55,3 +57,6 @@ func main(){
 }
 ```
 
+### Unsupported Objects
+
+Currently only Instagram Webhook objects and fields are explicitly supported, I plan on growing the package over time, however you can implement [EntryHandler](./events.go), [ChangesHandler](./changes.go) or [MessagingHandler](./messaging.go) to handle unsupported objects.

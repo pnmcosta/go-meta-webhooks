@@ -2,7 +2,6 @@ package gometawebhooks
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 )
 
@@ -13,6 +12,7 @@ const (
 )
 
 var (
+	ErrObjectRequired     = fmt.Errorf("object required: %w", ErrWebhooks)
 	ErrObjectNotSupported = fmt.Errorf("object not supported: %w", ErrWebhooks)
 )
 
@@ -21,9 +21,7 @@ func (t Object) String() string {
 }
 
 func (t *Object) FromString(status string) Object {
-	return map[string]Object{
-		"instagram": Instagram,
-	}[status]
+	return Object(status)
 }
 
 func (t Object) MarshalJSON() ([]byte, error) {
@@ -34,12 +32,13 @@ func (t *Object) UnmarshalJSON(b []byte) error {
 	var s string
 	err := json.Unmarshal(b, &s)
 	if err != nil {
-		return wrapErr(err, ErrObjectNotSupported)
-	}
-	*t = t.FromString(s)
-	if *t == "" {
-		return wrapErr(errors.New(s), ErrObjectNotSupported)
+		return err
 	}
 
+	if s == "" {
+		return ErrObjectRequired
+	}
+
+	*t = t.FromString(s)
 	return nil
 }

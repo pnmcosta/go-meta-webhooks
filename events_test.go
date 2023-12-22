@@ -83,10 +83,46 @@ func TestHandleEvent(t *testing.T) {
 			expectErr: gometawebhooks.ErrInvalidPayload,
 		},
 		{
-			name:      "unsupported object",
-			method:    http.MethodPost,
-			body:      strings.NewReader(`{"object":"none", "entry":[]}`),
-			expectErr: gometawebhooks.ErrParsingEvent,
+			name:   "handles unsupported object entries",
+			method: http.MethodPost,
+			body: strings.NewReader(`{
+				"object":"unsupported", 
+				"entry":[{
+					"id":"123",
+					"time":1569262486134,
+					"changes":[{ 
+							"field": "mentions",
+							"value": {
+								"media_id": "999",
+								"comment_id": "4444"
+							}
+					}]
+				}]
+			}`),
+			expected: gometawebhooks.Event{
+				Object: "unsupported",
+				Entry: []gometawebhooks.Entry{{
+					Id:   "123",
+					Time: 1569262486134,
+					Changes: []gometawebhooks.Change{{
+						Field: "mentions",
+						Value: gometawebhooks.MentionsFieldValue{
+							MediaID:   "999",
+							CommentID: "4444",
+						},
+					}},
+				}},
+			},
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.EntryHandler(testHandler{func() {
+						scenario.trigger("entry")
+					}}),
+				}
+			},
+			expectedHandlers: map[string]int{
+				"entry": 1,
+			},
 		},
 		{
 			name:   "no entries noop",
@@ -213,7 +249,7 @@ func TestHandleEvent(t *testing.T) {
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
 					gometawebhooks.Options.EntryHandler(testHandler{func() {
-						time.Sleep(scenario.timeout + 5)
+						time.Sleep(scenario.timeout * 2)
 						scenario.trigger("entry")
 					}}),
 				}
