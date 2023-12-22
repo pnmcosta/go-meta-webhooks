@@ -27,16 +27,16 @@ import gometawebhooks "github.com/pnmcosta/go-meta-webhooks"
 
 Wire-in this package with any HTTP server package, an example using [Echo](https://echo.labstack.com/) is provided in the [samples](./samples/) directory submodule of this repository. 
 
-The example is an implementation of the [InstagramHandler](./handler_instagram.go) which covers Instagram field changes and messaging.
+The example is an implementation of the [InstagramHandler](./handler_instagram.go) which covers supported Instagram field changes and messaging.
 
-However, you can granually implement each handler for scoped support instead. 
-
-For example, to only handle [InstagramMessageHandler](./messaging_instagram.go) event:
+However, you can granually implement each handler for scoped support instead. For example, to only handle [InstagramMessageHandler](./messaging_instagram.go) event instead:
 
 ```go
+package main
+
 import gometawebhooks "github.com/pnmcosta/go-meta-webhooks"
 
-var _ gometawebhooks.EntryHandler = (*handler)(nil)
+var _ gometawebhooks.InstagramMessageHandler = (*handler)(nil)
 
 type handler struct{}
 
