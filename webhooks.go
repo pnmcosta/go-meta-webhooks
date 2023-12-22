@@ -1,9 +1,9 @@
 package gometawebhooks
 
 import (
-	"context"
 	"errors"
 	"fmt"
+	"time"
 )
 
 var (
@@ -16,16 +16,16 @@ type Webhooks struct {
 	token  string
 	secret string
 
-	handleEntry func(ctx context.Context, object Object, entry Entry)
+	entryHandler     EntryHandler
+	changesHandler   ChangesHandler
+	messagingHandler MessagingHandler
 
-	handleInstagramChange       func(ctx context.Context, entry Entry, change Change)
-	handleInstagramMention      func(ctx context.Context, entry Entry, mention MentionsFieldValue)
-	handleInstagramStoryInsight func(ctx context.Context, entry Entry, storyInsights StoryInsightsFieldValue)
+	instagramMessageHandler  InstagramMessageHandler
+	instagramPostbackHandler InstagramPostbackHandler
+	instagramReferralHandler InstagramReferralHandler
 
-	handleInstagramMessaging func(ctx context.Context, entry Entry, messaging Messaging)
-	handleInstagramMessage   func(ctx context.Context, sender string, recipient string, time int64, message Message)
-	handleInstagramPostback  func(ctx context.Context, sender string, recipient string, time int64, postback Postback)
-	handleInstagramReferral  func(ctx context.Context, sender string, recipient string, time int64, referral Referral)
+	instagramMentionHandler       InstagramMentionHandler
+	instagramStoryInsightsHandler InstagramStoryInsightsHandler
 }
 
 // Creates and returns a webhooks instance
@@ -42,9 +42,26 @@ func NewWebhooks(options ...Option) (*Webhooks, error) {
 		return nil, err
 	}
 
+	handler := defaultHandler{hooks}
+	if hooks.entryHandler == nil {
+		hooks.entryHandler = handler
+	}
+
+	if hooks.changesHandler == nil {
+		hooks.changesHandler = handler
+	}
+
+	if hooks.messagingHandler == nil {
+		hooks.messagingHandler = handler
+	}
+
 	return hooks, nil
 }
 
 func wrapErr(err, target error) error {
 	return fmt.Errorf("%s: %w", err, target)
+}
+
+func unixTime(timeMs int64) time.Time {
+	return time.Unix(0, timeMs*int64(time.Millisecond))
 }

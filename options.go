@@ -1,7 +1,5 @@
 package gometawebhooks
 
-import "context"
-
 // Option is a configuration option for the webhook
 type Option func(*Webhooks) error
 
@@ -27,11 +25,26 @@ func (MetaWebhookOptions) Token(token string) Option {
 	}
 }
 
-// Overrides the default bevaviour to handle Object event entries.
-// Please note this will prevent other handle options from executing.
-func (MetaWebhookOptions) HandleEntry(fn func(ctx context.Context, object Object, entry Entry)) Option {
+// Overrides the default Handler, please note this will override child handler options.
+func (MetaWebhookOptions) EntryHandler(h EntryHandler) Option {
 	return func(hook *Webhooks) error {
-		hook.handleEntry = fn
+		hook.entryHandler = h
+		return nil
+	}
+}
+
+// Overrides the default ChangesHandler, please note this will override child handler options.
+func (MetaWebhookOptions) ChangesHandler(h ChangesHandler) Option {
+	return func(hook *Webhooks) error {
+		hook.changesHandler = h
+		return nil
+	}
+}
+
+// Overrides the default MessagingHandler, please note this will override child handler options.
+func (MetaWebhookOptions) MessagingHandler(h MessagingHandler) Option {
+	return func(hook *Webhooks) error {
+		hook.messagingHandler = h
 		return nil
 	}
 }

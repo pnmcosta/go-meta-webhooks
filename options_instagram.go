@@ -1,61 +1,58 @@
 package gometawebhooks
 
-import "context"
-
 // Handle https://developers.facebook.com/docs/instagram-api/guides/mentions
-func (MetaWebhookOptions) HandleInstagramMention(fn func(ctx context.Context, entry Entry, mention MentionsFieldValue)) Option {
+func (MetaWebhookOptions) InstagramMentionHandler(fn InstagramMentionHandler) Option {
 	return func(hook *Webhooks) error {
-		hook.handleInstagramMention = fn
+		hook.instagramMentionHandler = fn
 		return nil
 	}
 }
 
 // Handle https://developers.facebook.com/docs/instagram-api/guides/webhooks#capturing-story-insights
-func (MetaWebhookOptions) HandleInstagramStoryInsight(fn func(ctx context.Context, entry Entry, storyInsights StoryInsightsFieldValue)) Option {
+func (MetaWebhookOptions) InstagramStoryInsightsHandler(fn InstagramStoryInsightsHandler) Option {
 	return func(hook *Webhooks) error {
-		hook.handleInstagramStoryInsight = fn
-		return nil
-	}
-}
-
-// Overrides the default bevaviour to handle Instagram messaging entries.
-// Please note this will prevent other handle options from executing.
-func (MetaWebhookOptions) HandleInstagramMessaging(fn func(ctx context.Context, entry Entry, messaging Messaging)) Option {
-	return func(hook *Webhooks) error {
-		hook.handleInstagramMessaging = fn
+		hook.instagramStoryInsightsHandler = fn
 		return nil
 	}
 }
 
 // Handle https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook/#messages
-func (MetaWebhookOptions) HandleInstagramMessage(fn func(ctx context.Context, sender string, recipient string, time int64, message Message)) Option {
+func (MetaWebhookOptions) InstagramMessageHandler(fn InstagramMessageHandler) Option {
 	return func(hook *Webhooks) error {
-		hook.handleInstagramMessage = fn
+		hook.instagramMessageHandler = fn
 		return nil
 	}
 }
 
 // Handle https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook/#messaging-postbacks
-func (MetaWebhookOptions) HandleInstagramPostback(fn func(ctx context.Context, sender string, recipient string, time int64, postback Postback)) Option {
+func (MetaWebhookOptions) InstagramPostbackHandler(fn InstagramPostbackHandler) Option {
 	return func(hook *Webhooks) error {
-		hook.handleInstagramPostback = fn
+		hook.instagramPostbackHandler = fn
 		return nil
 	}
 }
 
 // Handle https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook/#igme
-func (MetaWebhookOptions) HandleInstagramReferral(fn func(ctx context.Context, sender string, recipient string, time int64, referral Referral)) Option {
+func (MetaWebhookOptions) InstagramReferralHandler(fn InstagramReferralHandler) Option {
 	return func(hook *Webhooks) error {
-		hook.handleInstagramReferral = fn
+		hook.instagramReferralHandler = fn
 		return nil
 	}
 }
 
-// Overrides the default bevaviour to handle Instagram field changes.
-// Please note this will prevent other handle options from executing.
-func (MetaWebhookOptions) HandleInstagramChange(fn func(ctx context.Context, entry Entry, change Change)) Option {
+func (MetaWebhookOptions) InstagramMessagingHandler(fn InstagramMessagingHandler) Option {
 	return func(hook *Webhooks) error {
-		hook.handleInstagramChange = fn
+		hook.instagramMessageHandler = fn
+		hook.instagramPostbackHandler = fn
+		hook.instagramReferralHandler = fn
+		return nil
+	}
+}
+
+func (MetaWebhookOptions) InstagramChangesHandler(fn InstagramChangesHandler) Option {
+	return func(hook *Webhooks) error {
+		hook.instagramMentionHandler = fn
+		hook.instagramStoryInsightsHandler = fn
 		return nil
 	}
 }

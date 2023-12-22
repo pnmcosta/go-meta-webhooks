@@ -122,9 +122,9 @@ func TestHandleMessaging(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.HandleInstagramMessaging(func(ctx context.Context, entry gometawebhooks.Entry, messaging gometawebhooks.Messaging) {
+					gometawebhooks.Options.MessagingHandler(testHandler{func() {
 						scenario.trigger("messaging")
-					}),
+					}}),
 				}
 			},
 			expectedHandlers: map[string]int{
@@ -198,9 +198,9 @@ func TestHandleMessaging(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.HandleInstagramMessage(func(ctx context.Context, sender, recipient string, time int64, message gometawebhooks.Message) {
+					gometawebhooks.Options.InstagramMessageHandler(testHandler{func() {
 						scenario.trigger("message")
-					}),
+					}}),
 				}
 			},
 			expectedHandlers: map[string]int{
@@ -260,9 +260,9 @@ func TestHandleMessaging(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.HandleInstagramMessage(func(ctx context.Context, sender, recipient string, time int64, message gometawebhooks.Message) {
+					gometawebhooks.Options.InstagramMessageHandler(testHandler{func() {
 						scenario.trigger("message")
-					}),
+					}}),
 				}
 			},
 			expectedHandlers: map[string]int{
@@ -324,9 +324,9 @@ func TestHandleMessaging(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.HandleInstagramPostback(func(ctx context.Context, sender, recipient string, time int64, postback gometawebhooks.Postback) {
+					gometawebhooks.Options.InstagramPostbackHandler(testHandler{func() {
 						scenario.trigger("postback")
-					}),
+					}}),
 				}
 			},
 			expectedHandlers: map[string]int{
@@ -388,9 +388,9 @@ func TestHandleMessaging(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.HandleInstagramReferral(func(ctx context.Context, sender, recipient string, time int64, referral gometawebhooks.Referral) {
+					gometawebhooks.Options.InstagramReferralHandler(testHandler{func() {
 						scenario.trigger("referral")
-					}),
+					}}),
 				}
 			},
 			expectedHandlers: map[string]int{

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"sync"
 )
 
@@ -31,6 +30,10 @@ type StoryInsightsFieldValue struct {
 	TapsForward int    `json:"taps_forward"`
 	TapsBack    int    `json:"taps_back"`
 	Impressions int    `json:"impressions"`
+}
+
+type ChangesHandler interface {
+	Changes(ctx context.Context, object Object, entry Entry, change Change)
 }
 
 func (c *Change) UnmarshalJSON(data []byte) error {
@@ -65,14 +68,9 @@ func (c *Change) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (hook Webhooks) changes(ctx context.Context, object Object, entry Entry) {
+func (hooks Webhooks) changes(ctx context.Context, object Object, entry Entry) {
 	if len(entry.Changes) == 0 {
 		return
-	}
-
-	instagramChange := hook.handleInstagramChange
-	if instagramChange == nil {
-		instagramChange = hook.handleInstagramChangeDefault
 	}
 
 	var wg sync.WaitGroup
@@ -90,24 +88,30 @@ func (hook Webhooks) changes(ctx context.Context, object Object, entry Entry) {
 		go func() {
 			defer wg.Done()
 
-			instagramChange(ctx, entry, change)
+			hooks.changesHandler.Changes(ctx, object, entry, change)
 		}()
 	}
 
 	wg.Wait()
 }
 
-func (hook Webhooks) handleInstagramChangeDefault(ctx context.Context, entry Entry, change Change) {
+func (h defaultHandler) Changes(ctx context.Context, object Object, entry Entry, change Change) {
+	if object != Instagram {
+		return
+	}
+
+	sent := unixTime(entry.Time)
+
 	switch value := change.Value.(type) {
 	case MentionsFieldValue:
-		if hook.handleInstagramMention != nil {
-			hook.handleInstagramMention(ctx, entry, value)
+		if h.hooks.instagramMentionHandler == nil {
+			return
 		}
+		h.hooks.instagramMentionHandler.InstagramMention(ctx, entry.Id, sent, value)
 	case StoryInsightsFieldValue:
-		if hook.handleInstagramStoryInsight != nil {
-			hook.handleInstagramStoryInsight(ctx, entry, value)
+		if h.hooks.instagramStoryInsightsHandler == nil {
+			return
 		}
-	default:
-		log.Printf("meta webhook event %v entry %s change field %s not supported\n", Instagram, entry.Id, change.Field)
+		h.hooks.instagramStoryInsightsHandler.InstagramStoryInsights(ctx, entry.Id, sent, value)
 	}
 }

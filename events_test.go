@@ -170,9 +170,9 @@ func TestHandleEvent(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.HandleEntry(func(ctx context.Context, object gometawebhooks.Object, entry gometawebhooks.Entry) {
+					gometawebhooks.Options.EntryHandler(testHandler{func() {
 						scenario.trigger("entry")
-					}),
+					}}),
 				}
 			},
 			expectedHandlers: map[string]int{
@@ -212,10 +212,10 @@ func TestHandleEvent(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.HandleEntry(func(ctx context.Context, object gometawebhooks.Object, entry gometawebhooks.Entry) {
+					gometawebhooks.Options.EntryHandler(testHandler{func() {
 						time.Sleep(scenario.timeout + 1)
 						scenario.trigger("entry")
-					}),
+					}}),
 				}
 			},
 			expectErr:        context.DeadlineExceeded,

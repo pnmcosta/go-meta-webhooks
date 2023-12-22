@@ -47,7 +47,7 @@ func (scenario *hookScenario) setup(t *testing.T) (*gometawebhooks.Webhooks, *ht
 	scenario.mutex = &sync.RWMutex{}
 
 	if scenario.timeout == 0 {
-		scenario.timeout = 5 * time.Millisecond
+		scenario.timeout = 7 * time.Millisecond
 	}
 
 	var options []gometawebhooks.Option

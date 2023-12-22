@@ -93,9 +93,9 @@ func TestHandleChange(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.HandleInstagramChange(func(ctx context.Context, e gometawebhooks.Entry, c gometawebhooks.Change) {
+					gometawebhooks.Options.ChangesHandler(testHandler{func() {
 						scenario.trigger("change")
-					}),
+					}}),
 				}
 			},
 			expectedHandlers: map[string]int{
@@ -133,9 +133,9 @@ func TestHandleChange(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.HandleInstagramMention(func(ctx context.Context, entry gometawebhooks.Entry, mention gometawebhooks.MentionsFieldValue) {
+					gometawebhooks.Options.InstagramMentionHandler(testHandler{func() {
 						scenario.trigger("mention")
-					}),
+					}}),
 				}
 			},
 			expectedHandlers: map[string]int{
@@ -175,9 +175,9 @@ func TestHandleChange(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.HandleInstagramMention(func(ctx context.Context, entry gometawebhooks.Entry, mention gometawebhooks.MentionsFieldValue) {
+					gometawebhooks.Options.InstagramMentionHandler(testHandler{func() {
 						scenario.trigger("mention")
-					}),
+					}}),
 				}
 			},
 			expectedHandlers: map[string]int{
@@ -227,9 +227,9 @@ func TestHandleChange(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.HandleInstagramStoryInsight(func(ctx context.Context, entry gometawebhooks.Entry, storyInsights gometawebhooks.StoryInsightsFieldValue) {
+					gometawebhooks.Options.InstagramStoryInsightsHandler(testHandler{func() {
 						scenario.trigger("storyInsights")
-					}),
+					}}),
 				}
 			},
 			expectedHandlers: map[string]int{
@@ -279,14 +279,14 @@ func TestHandleChange(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.HandleInstagramStoryInsight(func(ctx context.Context, entry gometawebhooks.Entry, storyInsights gometawebhooks.StoryInsightsFieldValue) {
+					gometawebhooks.Options.InstagramStoryInsightsHandler(testHandler{func() {
 						time.Sleep(scenario.timeout + 1)
-						scenario.trigger("storyInsight")
-					}),
+						scenario.trigger("storyInsights")
+					}}),
 				}
 			},
 			expectErr:        context.DeadlineExceeded,
-			expectedHandlers: map[string]int{"storyInsight": 1},
+			expectedHandlers: map[string]int{"storyInsights": 1},
 		},
 	}
 

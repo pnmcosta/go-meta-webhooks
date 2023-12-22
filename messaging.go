@@ -3,6 +3,7 @@ package gometawebhooks
 import (
 	"context"
 	"sync"
+	"time"
 )
 
 type Message struct {
@@ -57,14 +58,13 @@ type Messaging struct {
 	Referral  Referral `json:"referral"`
 }
 
+type MessagingHandler interface {
+	Messaging(ctx context.Context, object Object, entryId string, entryTime time.Time, messaging Messaging)
+}
+
 func (hook Webhooks) messaging(ctx context.Context, object Object, entry Entry) {
 	if len(entry.Messaging) == 0 {
 		return
-	}
-
-	instagramMessaging := hook.handleInstagramMessaging
-	if instagramMessaging == nil {
-		instagramMessaging = hook.handleInstagramMessagingDefault
 	}
 
 	var wg sync.WaitGroup
@@ -80,9 +80,42 @@ func (hook Webhooks) messaging(ctx context.Context, object Object, entry Entry) 
 		go func() {
 			defer wg.Done()
 
-			instagramMessaging(ctx, entry, messaging)
+			hook.messagingHandler.Messaging(ctx, object, entry.Id, unixTime(entry.Time), messaging)
 		}()
 	}
 
 	wg.Wait()
+}
+
+func (h defaultHandler) Messaging(ctx context.Context, object Object, entryId string, entryTime time.Time, messaging Messaging) {
+	if object != Instagram {
+		return
+	}
+
+	sent := unixTime(messaging.Timestamp)
+	if messaging.Message.Id != "" {
+		if messaging.Message.IsEcho {
+			return
+		}
+
+		if h.hooks.instagramMessageHandler != nil {
+			h.hooks.instagramMessageHandler.InstagramMessage(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Message)
+		}
+
+		return
+	}
+
+	if messaging.Postback.Id != "" {
+		if h.hooks.instagramPostbackHandler != nil {
+			h.hooks.instagramPostbackHandler.InstagramPostback(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Postback)
+		}
+		return
+	}
+
+	if messaging.Referral.Type != "" {
+		if h.hooks.instagramReferralHandler != nil {
+			h.hooks.instagramReferralHandler.InstagramReferral(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Referral)
+		}
+		return
+	}
 }

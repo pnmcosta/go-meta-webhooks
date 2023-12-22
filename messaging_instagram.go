@@ -1,32 +1,26 @@
 package gometawebhooks
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
-func (hook Webhooks) handleInstagramMessagingDefault(ctx context.Context, entry Entry, messaging Messaging) {
-	if messaging.Message.Id != "" {
-		if messaging.Message.IsEcho {
-			return
-		}
+// TODO: seen and reaction, see https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook
 
-		if hook.handleInstagramMessage != nil {
-			hook.handleInstagramMessage(ctx, messaging.Sender.Id, messaging.Recipient.Id, messaging.Timestamp, messaging.Message)
-		}
-		return
-	}
+type InstagramMessageHandler interface {
+	InstagramMessage(ctx context.Context, sender, recipient string, sent time.Time, message Message)
+}
 
-	if messaging.Postback.Id != "" {
-		if hook.handleInstagramPostback != nil {
-			hook.handleInstagramPostback(ctx, messaging.Sender.Id, messaging.Recipient.Id, messaging.Timestamp, messaging.Postback)
-		}
-		return
-	}
+type InstagramPostbackHandler interface {
+	InstagramPostback(ctx context.Context, sender, recipient string, sent time.Time, postback Postback)
+}
 
-	if messaging.Referral.Type != "" {
-		if hook.handleInstagramReferral != nil {
-			hook.handleInstagramReferral(ctx, messaging.Sender.Id, messaging.Recipient.Id, messaging.Timestamp, messaging.Referral)
-		}
-		return
-	}
+type InstagramReferralHandler interface {
+	InstagramReferral(ctx context.Context, sender, recipient string, sent time.Time, referral Referral)
+}
 
-	// TODO: seen and reaction, see https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook
+type InstagramMessagingHandler interface {
+	InstagramMessageHandler
+	InstagramPostbackHandler
+	InstagramReferralHandler
 }
