@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	MetaWebhookToken = "my-webhook-token"
+	MetaWebhooksToken = "my-webhook-token"
+	MetaWebhooksRoute = "/webhooks/meta"
 )
 
 type Handler struct {
@@ -18,6 +19,15 @@ type Handler struct {
 }
 
 func main() {
+	e, err := setup()
+	if err != nil {
+		e.Logger.Fatal(err)
+		return
+	}
+	e.Logger.Fatal(e.Start("127.0.0.1:1323"))
+}
+
+func setup() (*echo.Echo, error) {
 	e := echo.New()
 
 	handler := Handler{
@@ -26,16 +36,14 @@ func main() {
 
 	hooks, err := gometawebhooks.NewWebhooks(
 		// gometawebhooks.Options.Secret("my-app-secret"),
-		gometawebhooks.Options.Token(MetaWebhookToken),
+		gometawebhooks.Options.Token(MetaWebhooksToken),
 		gometawebhooks.Options.InstagramHandler(handler),
 	)
-
 	if err != nil {
-		e.Logger.Fatal(err)
-		return
+		return e, err
 	}
 
-	e.GET("/webhooks/meta", func(c echo.Context) error {
+	e.GET(MetaWebhooksRoute, func(c echo.Context) error {
 		challenge, err := hooks.Verify(c.Request())
 		if err != nil {
 			e.Logger.Error(err)
@@ -44,7 +52,8 @@ func main() {
 
 		return c.String(http.StatusOK, challenge)
 	})
-	e.POST("/webhooks/meta", func(c echo.Context) error {
+
+	e.POST(MetaWebhooksRoute, func(c echo.Context) error {
 		_, err := hooks.Handle(c.Request().Context(), c.Request())
 		if err != nil {
 			e.Logger.Error(err)
@@ -54,7 +63,7 @@ func main() {
 		return c.NoContent(http.StatusOK)
 	})
 
-	e.Logger.Fatal(e.Start("127.0.0.1:1323"))
+	return e, nil
 }
 
 func (h Handler) InstagramMessage(ctx context.Context, sender, recipient string, sent time.Time, message gometawebhooks.Message) {
