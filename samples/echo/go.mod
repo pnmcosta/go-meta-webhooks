@@ -1,4 +1,4 @@
-module github.com/pnmcosta/go-meta-webhooks/samples
+module github.com/pnmcosta/go-meta-webhooks/samples/echo
 
 go 1.21.4
 
@@ -20,4 +20,4 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 )
 
-replace github.com/pnmcosta/go-meta-webhooks v0.0.0 => ../
+replace github.com/pnmcosta/go-meta-webhooks v0.0.0 => ../../
