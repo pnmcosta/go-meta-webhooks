@@ -187,7 +187,7 @@ func TestHandleMessaging(t *testing.T) {
 							Attachments: []gometawebhooks.Attachment{{
 								Type: "story_mention",
 								Payload: struct {
-									URL string "json:\"url\""
+									URL string "json:\"url,omitempty\""
 								}{
 									URL: "<CDN_URL>",
 								},

@@ -13,8 +13,8 @@ var (
 )
 
 type Change struct {
-	Field string      `json:"field"`
-	Value interface{} `json:"value"`
+	Field string      `json:"field,omitempty"`
+	Value interface{} `json:"value,omitempty"`
 }
 
 type MentionsFieldValue struct {

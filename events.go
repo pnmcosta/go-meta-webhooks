@@ -18,8 +18,8 @@ var (
 type Entry struct {
 	Id        string      `json:"id"`
 	Time      int64       `json:"time"`
-	Messaging []Messaging `json:"messaging"`
-	Changes   []Change    `json:"changes"`
+	Messaging []Messaging `json:"messaging,omitempty"`
+	Changes   []Change    `json:"changes,omitempty"`
 }
 
 type Event struct {

@@ -7,7 +7,7 @@ import (
 )
 
 type Message struct {
-	Id          string       `json:"mid"`
+	Id          string       `json:"mid,omitempty"`
 	Text        string       `json:"text,omitempty"`
 	Attachments []Attachment `json:"attachments,omitempty"`
 	Referral    Referral     `json:"referral,omitempty"`
@@ -19,30 +19,30 @@ type Message struct {
 	ReplyTo struct {
 		Id    string `json:"mid,omitempty"`
 		Story struct {
-			ID  string `json:"id"`
-			URL string `json:"url"`
+			ID  string `json:"id,omitempty"`
+			URL string `json:"url,omitempty"`
 		} `json:"story,omitempty"`
 	} `json:"reply_to,omitempty"`
 }
 
 type Attachment struct {
-	Type    string `json:"type"`
+	Type    string `json:"type,omitempty"`
 	Payload struct {
-		URL string `json:"url"`
-	} `json:"payload"`
+		URL string `json:"url,omitempty"`
+	} `json:"payload,omitempty"`
 }
 
 type Referral struct {
-	Type   string `json:"type"`
-	Source string `json:"source"`
-	Ref    string `json:"ref"`
+	Type   string `json:"type,omitempty"`
+	Source string `json:"source,omitempty"`
+	Ref    string `json:"ref,omitempty"`
 }
 
 type Postback struct {
-	Id       string   `json:"mid"`
-	Title    string   `json:"title"`
-	Payload  string   `json:"payload"`
-	Referral Referral `json:"referral"`
+	Id       string   `json:"mid,omitempty"`
+	Title    string   `json:"title,omitempty"`
+	Payload  string   `json:"payload,omitempty"`
+	Referral Referral `json:"referral,omitempty"`
 }
 
 type Messaging struct {
@@ -53,9 +53,9 @@ type Messaging struct {
 		Id string `json:"id"`
 	} `json:"recipient"`
 	Timestamp int64    `json:"timestamp"`
-	Message   Message  `json:"message"`
-	Postback  Postback `json:"postback"`
-	Referral  Referral `json:"referral"`
+	Message   Message  `json:"message,omitempty"`
+	Postback  Postback `json:"postback,omitempty"`
+	Referral  Referral `json:"referral,omitempty"`
 }
 
 type MessagingHandler interface {
