@@ -52,11 +52,10 @@ func main(){
         gometawebhooks.Options.InstagramMessageHandler(handler),
     )
 
-    // TODO: implement HTTP routes for 
-    // hooks.Verify and hooks.Handle
+    // TODO: implement HTTP routes see samples directory.
 }
 ```
 
 ### Unsupported Objects
 
-Currently only Instagram Webhook objects and fields are explicitly supported, I plan on growing the package over time, however you can implement [EntryHandler](./events.go), [ChangesHandler](./changes.go) or [MessagingHandler](./messaging.go) to handle unsupported objects.
+Currently only Instagram Webhook objects and fields are explicitly supported, I plan on growing the package over time, however you can implement [EntryHandler](./events.go), [ChangesHandler](./changes.go) or [MessagingHandler](./messaging.go) to handle events for unsupported objects.
