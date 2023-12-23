@@ -1,6 +1,6 @@
 module github.com/pnmcosta/go-meta-webhooks/samples/serve
 
-go 1.21.4
+go 1.21
 
 require github.com/pnmcosta/go-meta-webhooks v0.0.0
 
