@@ -397,6 +397,72 @@ func TestHandleMessaging(t *testing.T) {
 				"referral": 1,
 			},
 		},
+		{
+			name:   "quick reply message",
+			method: http.MethodPost,
+			body: strings.NewReader(`{
+				"object": "instagram",
+				"entry": [
+				  {
+					"id": "123",
+					"time": 1569262486134,
+					"messaging": [
+					  {
+						"sender": {
+						  "id": "567"
+						},
+						"recipient": {
+						  "id": "123"
+						},
+						"timestamp": 1569262485349,
+						"message": {
+						  "mid": "890",
+						  "quick_reply": {
+								"payload":"QR-PAYLOAD"
+							}
+						}
+					  }
+					]
+				  }
+				]
+			  }`),
+			expected: gometawebhooks.Event{
+				Object: gometawebhooks.Instagram,
+				Entry: []gometawebhooks.Entry{{
+					Id:   "123",
+					Time: 1569262486134,
+					Messaging: []gometawebhooks.Messaging{{
+						Sender: struct {
+							Id string "json:\"id\""
+						}{
+							Id: "567",
+						},
+						Recipient: struct {
+							Id string "json:\"id\""
+						}{
+							Id: "123",
+						},
+						Timestamp: 1569262485349,
+						Message: gometawebhooks.Message{
+							Id: "890",
+							QuickReply: struct {
+								Payload string "json:\"payload,omitempty\""
+							}{"QR-PAYLOAD"},
+						},
+					}},
+				}},
+			},
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.InstagramMessageHandler(testHandler{func() {
+						scenario.trigger("message")
+					}}),
+				}
+			},
+			expectedHandlers: map[string]int{
+				"message": 1,
+			},
+		},
 	}
 
 	for _, scenario := range scenarios {

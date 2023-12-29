@@ -23,6 +23,10 @@ type Message struct {
 			URL string `json:"url,omitempty"`
 		} `json:"story,omitempty"`
 	} `json:"reply_to,omitempty"`
+
+	QuickReply struct {
+		Payload string `json:"payload,omitempty"`
+	} `json:"quick_reply,omitempty"`
 }
 
 type Attachment struct {
