@@ -186,9 +186,7 @@ func TestHandleMessaging(t *testing.T) {
 							Id: "890",
 							Attachments: []gometawebhooks.Attachment{{
 								Type: "story_mention",
-								Payload: struct {
-									URL string "json:\"url,omitempty\""
-								}{
+								Payload: gometawebhooks.AttachmentPayload{
 									URL: "<CDN_URL>",
 								},
 							}},
@@ -448,6 +446,162 @@ func TestHandleMessaging(t *testing.T) {
 							QuickReply: struct {
 								Payload string "json:\"payload,omitempty\""
 							}{"QR-PAYLOAD"},
+						},
+					}},
+				}},
+			},
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.InstagramMessageHandler(testHandler{func() {
+						scenario.trigger("message")
+					}}),
+				}
+			},
+			expectedHandlers: map[string]int{
+				"message": 1,
+			},
+		},
+		{
+			name:   "reel message attachment",
+			method: http.MethodPost,
+			body: strings.NewReader(`{
+				"object": "instagram",
+				"entry": [
+				  {
+					"id": "123",
+					"time": 1569262486134,
+					"messaging": [
+					  {
+						"sender": {
+						  "id": "567"
+						},
+						"recipient": {
+						  "id": "123"
+						},
+						"timestamp": 1569262485349,
+						"message": {
+						  "mid": "890",
+						  "attachments": [
+							{
+							  "type": "reel",
+							  "payload": {
+								"url": "<CDN_URL>",
+								"title": "reel title",
+								"reel_video_id": "123"
+							  }
+							}
+						  ]
+						}
+					  }
+					]
+				  }
+				]
+			  }`),
+			expected: gometawebhooks.Event{
+				Object: gometawebhooks.Instagram,
+				Entry: []gometawebhooks.Entry{{
+					Id:   "123",
+					Time: 1569262486134,
+					Messaging: []gometawebhooks.Messaging{{
+						Sender: struct {
+							Id string "json:\"id\""
+						}{
+							Id: "567",
+						},
+						Recipient: struct {
+							Id string "json:\"id\""
+						}{
+							Id: "123",
+						},
+						Timestamp: 1569262485349,
+						Message: gometawebhooks.Message{
+							Id: "890",
+							Attachments: []gometawebhooks.Attachment{{
+								Type: "reel",
+								Payload: gometawebhooks.AttachmentPayload{
+									URL:         "<CDN_URL>",
+									Title:       "reel title",
+									ReelVideoId: "123",
+								},
+							}},
+						},
+					}},
+				}},
+			},
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.InstagramMessageHandler(testHandler{func() {
+						scenario.trigger("message")
+					}}),
+				}
+			},
+			expectedHandlers: map[string]int{
+				"message": 1,
+			},
+		},
+		{
+			name:   "ig_reel message attachment",
+			method: http.MethodPost,
+			body: strings.NewReader(`{
+				"object": "instagram",
+				"entry": [
+				  {
+					"id": "123",
+					"time": 1569262486134,
+					"messaging": [
+					  {
+						"sender": {
+						  "id": "567"
+						},
+						"recipient": {
+						  "id": "123"
+						},
+						"timestamp": 1569262485349,
+						"message": {
+						  "mid": "890",
+						  "attachments": [
+							{
+							  "type": "ig_reel",
+							  "payload": {
+								"url": "<CDN_URL>",
+								"title": "reel title",
+								"reel_video_id": "123"
+							  }
+							}
+						  ]
+						}
+					  }
+					]
+				  }
+				]
+			  }`),
+			expected: gometawebhooks.Event{
+				Object: gometawebhooks.Instagram,
+				Entry: []gometawebhooks.Entry{{
+					Id:   "123",
+					Time: 1569262486134,
+					Messaging: []gometawebhooks.Messaging{{
+						Sender: struct {
+							Id string "json:\"id\""
+						}{
+							Id: "567",
+						},
+						Recipient: struct {
+							Id string "json:\"id\""
+						}{
+							Id: "123",
+						},
+						Timestamp: 1569262485349,
+						Message: gometawebhooks.Message{
+							Id: "890",
+							Attachments: []gometawebhooks.Attachment{{
+								Type: "ig_reel",
+								Payload: gometawebhooks.AttachmentPayload{
+									URL:         "<CDN_URL>",
+									Title:       "reel title",
+									ReelVideoId: "123",
+								},
+							}},
 						},
 					}},
 				}},

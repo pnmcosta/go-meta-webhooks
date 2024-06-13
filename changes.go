@@ -75,10 +75,11 @@ func (hooks Webhooks) changes(ctx context.Context, object Object, entry Entry) {
 
 	var wg sync.WaitGroup
 
+out:
 	for _, change := range entry.Changes {
 		select {
 		case <-ctx.Done():
-			break
+			break out
 		default:
 		}
 		wg.Add(1)

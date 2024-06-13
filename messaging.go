@@ -30,10 +30,15 @@ type Message struct {
 }
 
 type Attachment struct {
-	Type    string `json:"type,omitempty"`
-	Payload struct {
-		URL string `json:"url,omitempty"`
-	} `json:"payload,omitempty"`
+	Type    string            `json:"type,omitempty"`
+	Payload AttachmentPayload `json:"payload,omitempty"`
+}
+
+type AttachmentPayload struct {
+	URL         string `json:"url,omitempty"`
+	Title       string `json:"title,omitempty"`
+	StickerId   string `json:"sticker_id,omitempty"`
+	ReelVideoId string `json:"reel_video_id,omitempty"`
 }
 
 type Referral struct {
@@ -72,10 +77,11 @@ func (hooks Webhooks) messaging(ctx context.Context, object Object, entry Entry)
 	}
 
 	var wg sync.WaitGroup
+out:
 	for _, messaging := range entry.Messaging {
 		select {
 		case <-ctx.Done():
-			break
+			break out
 		default:
 		}
 

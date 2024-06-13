@@ -71,13 +71,22 @@
                                                     "type": {
                                                         "type": "string",
                                                         "enum":[
-                                                            "audio", "file", "image", "share", "story_mention", "video"
+                                                            "audio", "file", "image", "share", "story_mention", "video", "reel", "ig_reel", "fallback"
                                                         ]
                                                     },
                                                     "payload": {
                                                         "type": "object",
                                                         "properties": {
                                                             "url": {
+                                                                "type": "string"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            },
+                                                            "sticker_id": {
+                                                                "type": "string"
+                                                            },
+                                                            "reel_video_id": {
                                                                 "type": "string"
                                                             }
                                                         },
