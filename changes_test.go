@@ -297,9 +297,9 @@ func TestHandleChange(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), scenario.timeout)
 			defer cancel()
 
-			result, err := hooks.Handle(ctx, req)
+			result, payload, err := hooks.Handle(ctx, req)
 
-			scenario.assert(t, result, err)
+			scenario.assert(t, result, payload, err)
 		})
 	}
 }

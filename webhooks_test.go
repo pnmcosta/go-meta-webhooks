@@ -1,6 +1,7 @@
 package gometawebhooks_test
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
@@ -25,6 +26,7 @@ type hookScenario struct {
 	headers          map[string]string
 	options          func(scenario *hookScenario) []gometawebhooks.Option
 	body             io.Reader
+	bodyBytes        []byte
 	expected         interface{}
 	expectErr        error
 	expectedHandlers map[string]int
@@ -76,10 +78,20 @@ func (scenario *hookScenario) setup(t *testing.T) (*gometawebhooks.Webhooks, *ht
 		req.Header.Set(k, v)
 	}
 
+	// Read and store the body for later use
+	scenario.bodyBytes, err = io.ReadAll(req.Body)
+	if err != nil {
+		t.Fatalf("failed to read request body: %v", err)
+	}
+	req.Body.Close() // close the original body
+
+	// Restore the body to the request for the handler to read
+	req.Body = io.NopCloser(bytes.NewBuffer(scenario.bodyBytes))
+
 	return hooks, req
 }
 
-func (scenario *hookScenario) assert(t *testing.T, result interface{}, err error) {
+func (scenario *hookScenario) assert(t *testing.T, result interface{}, payload []byte, err error) {
 	if scenario.expectErr != nil {
 		if err == nil {
 			t.Errorf("Expected an error, but got none.")
@@ -108,6 +120,12 @@ func (scenario *hookScenario) assert(t *testing.T, result interface{}, err error
 
 	if !reflect.DeepEqual(result, scenario.expected) {
 		t.Errorf("Expected %v, but got %v", scenario.expected, result)
+	}
+
+	if scenario.body != nil {
+		if !bytes.Equal(scenario.bodyBytes, payload) {
+			t.Errorf("Expected body %v, but got %v", string(scenario.bodyBytes), string(payload))
+		}
 	}
 }
 

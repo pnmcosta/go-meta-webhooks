@@ -21,7 +21,7 @@ type defaultHandler struct {
 }
 
 // Handles Meta Webhooks POST requests, verifies signature if secret is supplied, validates and parses Event payload.
-func (hooks Webhooks) Handle(ctx context.Context, r *http.Request) (Event, error) {
+func (hooks Webhooks) Handle(ctx context.Context, r *http.Request) (Event, []byte, error) {
 	defer func() {
 		_, _ = io.Copy(io.Discard, r.Body)
 		_ = r.Body.Close()
@@ -30,12 +30,12 @@ func (hooks Webhooks) Handle(ctx context.Context, r *http.Request) (Event, error
 	var event Event
 
 	if r.Method != http.MethodPost {
-		return event, ErrInvalidHTTPMethod
+		return event, []byte{}, ErrInvalidHTTPMethod
 	}
 
 	payload, err := io.ReadAll(r.Body)
 	if err != nil || len(payload) == 0 {
-		return event, wrapErr(err, ErrReadBodyPayload)
+		return event, payload, wrapErr(err, ErrReadBodyPayload)
 	}
 
 	// normalize header keys
@@ -51,28 +51,28 @@ func (hooks Webhooks) Handle(ctx context.Context, r *http.Request) (Event, error
 	if len(hooks.secret) > 0 {
 		signature := headers["x_hub_signature_256"]
 		if len(signature) == 0 {
-			return event, ErrMissingHubSignatureHeader
+			return event, payload, ErrMissingHubSignatureHeader
 		}
 		mac := hmac.New(sha256.New, []byte(hooks.secret))
 		mac.Write(payload)
 		expectedMAC := hex.EncodeToString(mac.Sum(nil))
 
 		if len(signature) <= 8 || !hmac.Equal([]byte(signature[7:]), []byte(expectedMAC)) {
-			return event, ErrHMACVerificationFailed
+			return event, payload, ErrHMACVerificationFailed
 		}
 	}
 
 	var pl interface{}
 	if err := json.Unmarshal(payload, &pl); err != nil {
-		return event, wrapErr(err, ErrParsingPayload)
+		return event, payload, wrapErr(err, ErrParsingPayload)
 	}
 
 	if err := hooks.validate(pl); err != nil {
-		return event, err
+		return event, payload, err
 	}
 
 	if err := json.Unmarshal(payload, &event); err != nil {
-		return event, wrapErr(err, ErrParsingEvent)
+		return event, payload, wrapErr(err, ErrParsingEvent)
 	}
 
 	var wg sync.WaitGroup
@@ -99,9 +99,9 @@ out:
 
 	select {
 	case <-ctx.Done():
-		return event, ctx.Err()
+		return event, payload, ctx.Err()
 	default:
 	}
 
-	return event, nil
+	return event, payload, nil
 }

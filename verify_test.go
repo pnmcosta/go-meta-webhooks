@@ -50,7 +50,7 @@ func TestVerify(t *testing.T) {
 
 			result, err := hooks.Verify(req)
 
-			scenario.assert(t, result, err)
+			scenario.assert(t, result, nil, err)
 		})
 	}
 }
