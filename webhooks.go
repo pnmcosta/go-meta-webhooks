@@ -41,17 +41,16 @@ func New(options ...Option) (*Webhooks, error) {
 		return nil, err
 	}
 
-	handler := defaultHandler{hooks}
 	if hooks.entryHandler == nil {
-		hooks.entryHandler = handler
+		hooks.entryHandler = hooks
 	}
 
 	if hooks.changesHandler == nil {
-		hooks.changesHandler = handler
+		hooks.changesHandler = hooks
 	}
 
 	if hooks.messagingHandler == nil {
-		hooks.messagingHandler = handler
+		hooks.messagingHandler = hooks
 	}
 
 	return hooks, nil

@@ -96,7 +96,7 @@ out:
 	wg.Wait()
 }
 
-func (h defaultHandler) Messaging(ctx context.Context, object Object, entryId string, entryTime time.Time, messaging Messaging) {
+func (h Webhooks) Messaging(ctx context.Context, object Object, entryId string, entryTime time.Time, messaging Messaging) {
 	if object != Instagram {
 		return
 	}
@@ -107,23 +107,23 @@ func (h defaultHandler) Messaging(ctx context.Context, object Object, entryId st
 			return
 		}
 
-		if h.hooks.instagramMessageHandler != nil {
-			h.hooks.instagramMessageHandler.InstagramMessage(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Message)
+		if h.instagramMessageHandler != nil {
+			h.instagramMessageHandler.InstagramMessage(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Message)
 		}
 
 		return
 	}
 
 	if messaging.Postback.Id != "" {
-		if h.hooks.instagramPostbackHandler != nil {
-			h.hooks.instagramPostbackHandler.InstagramPostback(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Postback)
+		if h.instagramPostbackHandler != nil {
+			h.instagramPostbackHandler.InstagramPostback(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Postback)
 		}
 		return
 	}
 
 	if messaging.Referral.Type != "" {
-		if h.hooks.instagramReferralHandler != nil {
-			h.hooks.instagramReferralHandler.InstagramReferral(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Referral)
+		if h.instagramReferralHandler != nil {
+			h.instagramReferralHandler.InstagramReferral(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Referral)
 		}
 		return
 	}

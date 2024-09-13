@@ -96,7 +96,7 @@ out:
 	wg.Wait()
 }
 
-func (h defaultHandler) Changes(ctx context.Context, object Object, entry Entry, change Change) {
+func (h Webhooks) Changes(ctx context.Context, object Object, entry Entry, change Change) {
 	if object != Instagram {
 		return
 	}
@@ -105,14 +105,14 @@ func (h defaultHandler) Changes(ctx context.Context, object Object, entry Entry,
 
 	switch value := change.Value.(type) {
 	case MentionsFieldValue:
-		if h.hooks.instagramMentionHandler == nil {
+		if h.instagramMentionHandler == nil {
 			return
 		}
-		h.hooks.instagramMentionHandler.InstagramMention(ctx, entry.Id, sent, value)
+		h.instagramMentionHandler.InstagramMention(ctx, entry.Id, sent, value)
 	case StoryInsightsFieldValue:
-		if h.hooks.instagramStoryInsightsHandler == nil {
+		if h.instagramStoryInsightsHandler == nil {
 			return
 		}
-		h.hooks.instagramStoryInsightsHandler.InstagramStoryInsights(ctx, entry.Id, sent, value)
+		h.instagramStoryInsightsHandler.InstagramStoryInsights(ctx, entry.Id, sent, value)
 	}
 }

@@ -31,20 +31,20 @@ type EntryHandler interface {
 	Entry(ctx context.Context, object Object, entry Entry)
 }
 
-func (h defaultHandler) Entry(ctx context.Context, object Object, entry Entry) {
+func (h Webhooks) Entry(ctx context.Context, object Object, entry Entry) {
 	var wg sync.WaitGroup
 	wg.Add(2)
 
 	go func() {
 		defer wg.Done()
 
-		h.hooks.changes(ctx, object, entry)
+		h.changes(ctx, object, entry)
 	}()
 
 	go func() {
 		defer wg.Done()
 
-		h.hooks.messaging(ctx, object, entry)
+		h.messaging(ctx, object, entry)
 	}()
 
 	wg.Wait()

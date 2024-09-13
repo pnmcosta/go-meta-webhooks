@@ -7,13 +7,9 @@ import (
 	"sync"
 )
 
-var _ EntryHandler = (*defaultHandler)(nil)
-var _ ChangesHandler = (*defaultHandler)(nil)
-var _ MessagingHandler = (*defaultHandler)(nil)
-
-type defaultHandler struct {
-	hooks *Webhooks
-}
+var _ EntryHandler = (*Webhooks)(nil)
+var _ ChangesHandler = (*Webhooks)(nil)
+var _ MessagingHandler = (*Webhooks)(nil)
 
 // Handles Meta Webhooks POST requests, verifies signature if secret is supplied, validates and parses Event payload.
 func (hooks Webhooks) HandleRequest(ctx context.Context, r *http.Request) (Event, []byte, error) {
