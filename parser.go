@@ -44,9 +44,9 @@ func (hooks Webhooks) Verify(body []byte, headers map[string]string) error {
 		return nil
 	}
 
-	signature := headers[HeaderSignatureName]
+	signature := headers[hooks.headerSigName]
 	if len(signature) == 0 {
-		return fmt.Errorf("missing %s Header: %w", HeaderSignatureName, ErrMissingHubSignatureHeader)
+		return fmt.Errorf("missing %s Header: %w", hooks.headerSigName, ErrMissingHubSignatureHeader)
 	}
 
 	mac := hmac.New(sha256.New, []byte(hooks.secret))

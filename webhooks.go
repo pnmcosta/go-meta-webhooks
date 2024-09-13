@@ -16,6 +16,8 @@ type Webhooks struct {
 	token  string
 	secret string
 
+	headerSigName string
+
 	entryHandler     EntryHandler
 	changesHandler   ChangesHandler
 	messagingHandler MessagingHandler
@@ -35,6 +37,10 @@ func New(options ...Option) (*Webhooks, error) {
 		if err := opt(hooks); err != nil {
 			return nil, wrapErr(err, ErrApplyingOption)
 		}
+	}
+
+	if hooks.headerSigName == "" {
+		hooks.headerSigName = HeaderSignatureName
 	}
 
 	if hooks.entryHandler == nil {

@@ -58,3 +58,11 @@ func (MetaWebhookOptions) CompileSchema() Option {
 		return nil
 	}
 }
+
+// Sets a custom header signature name
+func (MetaWebhookOptions) CustomHeaderSigName(name string) Option {
+	return func(hooks *Webhooks) error {
+		hooks.headerSigName = name
+		return nil
+	}
+}
