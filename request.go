@@ -23,3 +23,17 @@ func (hooks Webhooks) VerifyRequest(r *http.Request) (string, error) {
 	}
 	return challenge, nil
 }
+
+func (hooks Webhooks) VerifyToken(method string, queryValues map[string]string) (string, error) {
+	if method != http.MethodGet {
+		return "", ErrInvalidHTTPMethod
+	}
+
+	mode := queryValues["hub.mode"]
+	token := queryValues["hub.verify_token"]
+	challenge := queryValues["hub.challenge"]
+	if mode != "subscribe" || token != hooks.token || challenge == "" {
+		return "", ErrVerificationFailed
+	}
+	return challenge, nil
+}
