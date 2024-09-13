@@ -39,6 +39,11 @@ func TestHandleChange(t *testing.T) {
 					}},
 				}},
 			},
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
+				}
+			},
 		},
 		{
 			name:   "handles many",
@@ -93,6 +98,7 @@ func TestHandleChange(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
 					gometawebhooks.Options.ChangesHandler(testHandler{func() {
 						scenario.trigger("change")
 					}}),
@@ -133,6 +139,7 @@ func TestHandleChange(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
 					gometawebhooks.Options.InstagramMentionHandler(testHandler{func() {
 						scenario.trigger("mention")
 					}}),
@@ -175,6 +182,7 @@ func TestHandleChange(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
 					gometawebhooks.Options.InstagramMentionHandler(testHandler{func() {
 						scenario.trigger("mention")
 					}}),
@@ -227,6 +235,7 @@ func TestHandleChange(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
 					gometawebhooks.Options.InstagramStoryInsightsHandler(testHandler{func() {
 						scenario.trigger("storyInsights")
 					}}),
@@ -279,6 +288,7 @@ func TestHandleChange(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
 					gometawebhooks.Options.InstagramStoryInsightsHandler(testHandler{func() {
 						time.Sleep(scenario.timeout * 2)
 						scenario.trigger("storyInsights")

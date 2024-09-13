@@ -24,6 +24,7 @@ func (hooks Webhooks) Validate(body []byte) error {
 	if validationSchema == nil {
 		return ErrMissingSchema
 	}
+
 	var pl interface{}
 	if err := json.Unmarshal(body, &pl); err != nil {
 		return wrapErr(err, ErrParsingPayload)

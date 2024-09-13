@@ -37,10 +37,6 @@ func New(options ...Option) (*Webhooks, error) {
 		}
 	}
 
-	if err := hooks.compileSchema(); err != nil {
-		return nil, err
-	}
-
 	if hooks.entryHandler == nil {
 		hooks.entryHandler = hooks
 	}

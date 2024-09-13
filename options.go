@@ -48,3 +48,13 @@ func (MetaWebhookOptions) MessagingHandler(h MessagingHandler) Option {
 		return nil
 	}
 }
+
+// Ensures embedded JSON schema is compiled
+func (MetaWebhookOptions) CompileSchema() Option {
+	return func(hooks *Webhooks) error {
+		if err := hooks.compileSchema(); err != nil {
+			return err
+		}
+		return nil
+	}
+}

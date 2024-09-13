@@ -122,6 +122,7 @@ func TestHandleMessaging(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
 					gometawebhooks.Options.MessagingHandler(testHandler{func() {
 						scenario.trigger("messaging")
 					}}),
@@ -196,6 +197,7 @@ func TestHandleMessaging(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
 					gometawebhooks.Options.InstagramMessageHandler(testHandler{func() {
 						scenario.trigger("message")
 					}}),
@@ -258,6 +260,7 @@ func TestHandleMessaging(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
 					gometawebhooks.Options.InstagramMessageHandler(testHandler{func() {
 						scenario.trigger("message")
 					}}),
@@ -322,6 +325,7 @@ func TestHandleMessaging(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
 					gometawebhooks.Options.InstagramPostbackHandler(testHandler{func() {
 						scenario.trigger("postback")
 					}}),
@@ -386,6 +390,7 @@ func TestHandleMessaging(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
 					gometawebhooks.Options.InstagramReferralHandler(testHandler{func() {
 						scenario.trigger("referral")
 					}}),
@@ -452,6 +457,7 @@ func TestHandleMessaging(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
 					gometawebhooks.Options.InstagramMessageHandler(testHandler{func() {
 						scenario.trigger("message")
 					}}),
@@ -530,6 +536,7 @@ func TestHandleMessaging(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
 					gometawebhooks.Options.InstagramMessageHandler(testHandler{func() {
 						scenario.trigger("message")
 					}}),
@@ -608,6 +615,7 @@ func TestHandleMessaging(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
 					gometawebhooks.Options.InstagramMessageHandler(testHandler{func() {
 						scenario.trigger("message")
 					}}),

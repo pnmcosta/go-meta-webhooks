@@ -33,6 +33,11 @@ func TestHandleEvent(t *testing.T) {
 			method:    http.MethodPost,
 			body:      strings.NewReader(`{"object`),
 			expectErr: gometawebhooks.ErrParsingPayload,
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
+				}
+			},
 		},
 		{
 			name:   "missing signature",
@@ -81,6 +86,11 @@ func TestHandleEvent(t *testing.T) {
 			method:    http.MethodPost,
 			body:      strings.NewReader(`{}`),
 			expectErr: gometawebhooks.ErrInvalidPayload,
+			options: func(scenario *hookScenario) []gometawebhooks.Option {
+				return []gometawebhooks.Option{
+					gometawebhooks.Options.CompileSchema(),
+				}
+			},
 		},
 		{
 			name:   "handles unsupported object entries",
