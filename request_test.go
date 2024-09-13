@@ -48,7 +48,7 @@ func TestVerify(t *testing.T) {
 		scenario.test(t, func(t *testing.T) {
 			hooks, req := scenario.setup(t)
 
-			result, err := hooks.Verify(req)
+			result, err := hooks.VerifyRequest(req)
 
 			scenario.assert(t, result, nil, err)
 		})

@@ -10,7 +10,7 @@ var (
 )
 
 // Verify Meta Webhooks GET requests, when subscribing on App dashboard to objects and fields.
-func (hooks Webhooks) Verify(r *http.Request) (string, error) {
+func (hooks Webhooks) VerifyRequest(r *http.Request) (string, error) {
 	if r.Method != http.MethodGet {
 		return "", ErrInvalidHTTPMethod
 	}

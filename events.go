@@ -9,7 +9,7 @@ import (
 var (
 	ErrInvalidHTTPMethod         = fmt.Errorf("invalid HTTP Method: %w", ErrWebhooks)
 	ErrReadBodyPayload           = fmt.Errorf("error reading body payload: %w", ErrWebhooks)
-	ErrMissingHubSignatureHeader = fmt.Errorf("missing x-hub-signature-256 Header: %w", ErrWebhooks)
+	ErrMissingHubSignatureHeader = fmt.Errorf("missing signature value: %w", ErrWebhooks)
 	ErrHMACVerificationFailed    = fmt.Errorf("HMAC verification failed: %w", ErrWebhooks)
 	ErrParsingPayload            = fmt.Errorf("error parsing payload: %w", ErrWebhooks)
 	ErrParsingEvent              = fmt.Errorf("error parsing event: %w", ErrWebhooks)

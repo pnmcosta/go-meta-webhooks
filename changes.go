@@ -81,16 +81,16 @@ out:
 		case <-ctx.Done():
 			break out
 		default:
+			wg.Add(1)
+
+			change := change
+
+			go func() {
+				defer wg.Done()
+
+				hooks.changesHandler.Changes(ctx, object, entry, change)
+			}()
 		}
-		wg.Add(1)
-
-		change := change
-
-		go func() {
-			defer wg.Done()
-
-			hooks.changesHandler.Changes(ctx, object, entry, change)
-		}()
 	}
 
 	wg.Wait()

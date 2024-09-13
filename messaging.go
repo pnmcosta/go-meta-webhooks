@@ -83,15 +83,14 @@ out:
 		case <-ctx.Done():
 			break out
 		default:
+			wg.Add(1)
+			messaging := messaging
+			go func() {
+				defer wg.Done()
+
+				hooks.messagingHandler.Messaging(ctx, object, entry.Id, unixTime(entry.Time), messaging)
+			}()
 		}
-
-		wg.Add(1)
-		messaging := messaging
-		go func() {
-			defer wg.Done()
-
-			hooks.messagingHandler.Messaging(ctx, object, entry.Id, unixTime(entry.Time), messaging)
-		}()
 	}
 
 	wg.Wait()

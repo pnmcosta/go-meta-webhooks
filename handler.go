@@ -2,13 +2,8 @@ package gometawebhooks
 
 import (
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
 	"io"
 	"net/http"
-	"strings"
 	"sync"
 )
 
@@ -21,7 +16,7 @@ type defaultHandler struct {
 }
 
 // Handles Meta Webhooks POST requests, verifies signature if secret is supplied, validates and parses Event payload.
-func (hooks Webhooks) Handle(ctx context.Context, r *http.Request) (Event, []byte, error) {
+func (hooks Webhooks) HandleRequest(ctx context.Context, r *http.Request) (Event, []byte, error) {
 	defer func() {
 		_, _ = io.Copy(io.Discard, r.Body)
 		_ = r.Body.Close()
@@ -42,37 +37,21 @@ func (hooks Webhooks) Handle(ctx context.Context, r *http.Request) (Event, []byt
 	headers := make(map[string]string)
 	for k, v := range r.Header {
 		if len(v) > 0 {
-			headers[strings.ToLower(strings.ReplaceAll(k, "-", "_"))] = v[0]
+			headers[k] = v[0]
 		}
 	}
 
-	// If we have a Secret set, we should check the MAC
-	// https://developers.facebook.com/docs/messenger-platform/webhooks#validate-payloads
-	if len(hooks.secret) > 0 {
-		signature := headers["x_hub_signature_256"]
-		if len(signature) == 0 {
-			return event, payload, ErrMissingHubSignatureHeader
-		}
-		mac := hmac.New(sha256.New, []byte(hooks.secret))
-		mac.Write(payload)
-		expectedMAC := hex.EncodeToString(mac.Sum(nil))
-
-		if len(signature) <= 8 || !hmac.Equal([]byte(signature[7:]), []byte(expectedMAC)) {
-			return event, payload, ErrHMACVerificationFailed
-		}
-	}
-
-	var pl interface{}
-	if err := json.Unmarshal(payload, &pl); err != nil {
-		return event, payload, wrapErr(err, ErrParsingPayload)
-	}
-
-	if err := hooks.validate(pl); err != nil {
+	if err := hooks.Verify(payload, headers); err != nil {
 		return event, payload, err
 	}
 
-	if err := json.Unmarshal(payload, &event); err != nil {
-		return event, payload, wrapErr(err, ErrParsingEvent)
+	if err := hooks.Validate(payload); err != nil {
+		return event, payload, err
+	}
+
+	event, err = hooks.Parse(payload)
+	if err != nil {
+		return event, payload, err
 	}
 
 	var wg sync.WaitGroup
@@ -82,17 +61,16 @@ out:
 		case <-ctx.Done():
 			break out
 		default:
+			wg.Add(1)
+
+			entry := entry
+
+			go func() {
+				defer wg.Done()
+
+				hooks.entryHandler.Entry(ctx, event.Object, entry)
+			}()
 		}
-
-		wg.Add(1)
-
-		entry := entry
-
-		go func() {
-			defer wg.Done()
-
-			hooks.entryHandler.Entry(ctx, event.Object, entry)
-		}()
 	}
 
 	wg.Wait()
@@ -101,7 +79,6 @@ out:
 	case <-ctx.Done():
 		return event, payload, ctx.Err()
 	default:
+		return event, payload, nil
 	}
-
-	return event, payload, nil
 }

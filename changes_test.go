@@ -280,13 +280,14 @@ func TestHandleChange(t *testing.T) {
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
 					gometawebhooks.Options.InstagramStoryInsightsHandler(testHandler{func() {
-						time.Sleep(scenario.timeout + 5)
+						time.Sleep(scenario.timeout * 2)
 						scenario.trigger("storyInsights")
 					}}),
 				}
 			},
 			expectErr:        context.DeadlineExceeded,
 			expectedHandlers: map[string]int{"storyInsights": 1},
+			timeout:          50 * time.Millisecond,
 		},
 	}
 
@@ -297,7 +298,7 @@ func TestHandleChange(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), scenario.timeout)
 			defer cancel()
 
-			result, payload, err := hooks.Handle(ctx, req)
+			result, payload, err := hooks.HandleRequest(ctx, req)
 
 			scenario.assert(t, result, payload, err)
 		})

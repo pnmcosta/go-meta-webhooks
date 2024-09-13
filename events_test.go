@@ -49,7 +49,7 @@ func TestHandleEvent(t *testing.T) {
 			name:   "invalid signature",
 			method: http.MethodPost,
 			headers: map[string]string{
-				"x_hub_signature_256": "1",
+				"X-Hub-Signature-256": "1",
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
@@ -63,7 +63,7 @@ func TestHandleEvent(t *testing.T) {
 			name:   "verifies signature noop",
 			method: http.MethodPost,
 			headers: map[string]string{
-				"x_hub_signature_256": genHmac("very_secret", `{"object":"instagram", "entry":[]}`),
+				"X-Hub-Signature-256": genHmac("very_secret", `{"object":"instagram", "entry":[]}`),
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
@@ -256,6 +256,7 @@ func TestHandleEvent(t *testing.T) {
 			},
 			expectErr:        context.DeadlineExceeded,
 			expectedHandlers: map[string]int{"entry": 1},
+			timeout:          50 * time.Millisecond,
 		},
 	}
 
@@ -266,7 +267,7 @@ func TestHandleEvent(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), scenario.timeout)
 			defer cancel()
 
-			result, payload, err := hooks.Handle(ctx, req)
+			result, payload, err := hooks.HandleRequest(ctx, req)
 
 			scenario.assert(t, result, payload, err)
 		})

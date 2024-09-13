@@ -625,7 +625,7 @@ func TestHandleMessaging(t *testing.T) {
 
 			ctx := context.Background()
 
-			result, payload, err := hooks.Handle(ctx, req)
+			result, payload, err := hooks.HandleRequest(ctx, req)
 
 			scenario.assert(t, result, payload, err)
 		})

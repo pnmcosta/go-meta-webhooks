@@ -29,15 +29,3 @@ func (hooks *Webhooks) compileSchema() error {
 	validationSchema = schema
 	return nil
 }
-
-func (hooks Webhooks) validate(payload interface{}) error {
-	if validationSchema == nil {
-		return ErrMissingSchema
-	}
-
-	if err := validationSchema.Validate(payload); err != nil {
-		return wrapErr(err, ErrInvalidPayload)
-	}
-
-	return nil
-}
