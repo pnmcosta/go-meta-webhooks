@@ -6,10 +6,11 @@ import (
 	"strings"
 	"testing"
 
-	gometawebhooks "github.com/pnmcosta/go-meta-webhooks"
+	"github.com/pnmcosta/go-meta-webhooks/handler"
 )
 
 func TestHandleMessaging(t *testing.T) {
+	t.Parallel()
 	scenarios := []hookScenario{
 		{
 			name:   "handles many",
@@ -64,12 +65,12 @@ func TestHandleMessaging(t *testing.T) {
 				  }
 				]
 			  }`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Messaging: []gometawebhooks.Messaging{{
+					Messaging: []handler.Messaging{{
 						Sender: struct {
 							Id string "json:\"id\""
 						}{
@@ -81,7 +82,7 @@ func TestHandleMessaging(t *testing.T) {
 							Id: "123",
 						},
 						Timestamp: 1569262485349,
-						Message: gometawebhooks.Message{
+						Message: handler.Message{
 							Id:   "MESSAGE_ID",
 							Text: "message from 567",
 						},
@@ -97,7 +98,7 @@ func TestHandleMessaging(t *testing.T) {
 							Id: "123",
 						},
 						Timestamp: 1569262485349,
-						Message: gometawebhooks.Message{
+						Message: handler.Message{
 							Id:   "MESSAGE_ID",
 							Text: "message from 444",
 						},
@@ -113,17 +114,17 @@ func TestHandleMessaging(t *testing.T) {
 							Id: "123",
 						},
 						Timestamp: 1569262485349,
-						Message: gometawebhooks.Message{
+						Message: handler.Message{
 							Id:   "MESSAGE_ID",
 							Text: "message from 666",
 						},
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.MessagingHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.MessagingHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("messaging")
 						return nil
 					}}),
@@ -167,12 +168,12 @@ func TestHandleMessaging(t *testing.T) {
 				  }
 				]
 			  }`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Messaging: []gometawebhooks.Messaging{{
+					Messaging: []handler.Messaging{{
 						Sender: struct {
 							Id string "json:\"id\""
 						}{
@@ -184,11 +185,11 @@ func TestHandleMessaging(t *testing.T) {
 							Id: "123",
 						},
 						Timestamp: 1569262485349,
-						Message: gometawebhooks.Message{
+						Message: handler.Message{
 							Id: "890",
-							Attachments: []gometawebhooks.Attachment{{
+							Attachments: []handler.Attachment{{
 								Type: "story_mention",
-								Payload: gometawebhooks.AttachmentPayload{
+								Payload: handler.AttachmentPayload{
 									URL: "<CDN_URL>",
 								},
 							}},
@@ -196,10 +197,10 @@ func TestHandleMessaging(t *testing.T) {
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.InstagramMessageHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.InstagramMessageHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("message")
 						return nil
 					}}),
@@ -236,12 +237,12 @@ func TestHandleMessaging(t *testing.T) {
 				  }
 				]
 			  }`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Messaging: []gometawebhooks.Messaging{{
+					Messaging: []handler.Messaging{{
 						Sender: struct {
 							Id string "json:\"id\""
 						}{
@@ -253,17 +254,17 @@ func TestHandleMessaging(t *testing.T) {
 							Id: "123",
 						},
 						Timestamp: 1569262485349,
-						Message: gometawebhooks.Message{
+						Message: handler.Message{
 							Id:   "890",
 							Text: "Text in message",
 						},
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.InstagramMessageHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.InstagramMessageHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("message")
 						return nil
 					}}),
@@ -301,12 +302,12 @@ func TestHandleMessaging(t *testing.T) {
 				  }
 				]
 			  }`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Messaging: []gometawebhooks.Messaging{{
+					Messaging: []handler.Messaging{{
 						Sender: struct {
 							Id string "json:\"id\""
 						}{
@@ -318,7 +319,7 @@ func TestHandleMessaging(t *testing.T) {
 							Id: "123",
 						},
 						Timestamp: 1569262485349,
-						Postback: gometawebhooks.Postback{
+						Postback: handler.Postback{
 							Id:      "MESSAGE-ID",
 							Title:   "SELECTED-ICEBREAKER-REPLY-OR-CTA-BUTTON",
 							Payload: "CUSTOMER-RESPONSE-PAYLOAD",
@@ -326,10 +327,10 @@ func TestHandleMessaging(t *testing.T) {
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.InstagramPostbackHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.InstagramPostbackHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("postback")
 						return nil
 					}}),
@@ -367,12 +368,12 @@ func TestHandleMessaging(t *testing.T) {
 				  }
 				]
 			  }`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Messaging: []gometawebhooks.Messaging{{
+					Messaging: []handler.Messaging{{
 						Sender: struct {
 							Id string "json:\"id\""
 						}{
@@ -384,7 +385,7 @@ func TestHandleMessaging(t *testing.T) {
 							Id: "123",
 						},
 						Timestamp: 1569262485349,
-						Referral: gometawebhooks.Referral{
+						Referral: handler.Referral{
 							Ref:    "INFORMATION-INCLUDED-IN-REF-PARAMETER-OF-IGME-LINK",
 							Source: "IGME-SOURCE-LINK",
 							Type:   "OPEN_THREAD",
@@ -392,10 +393,10 @@ func TestHandleMessaging(t *testing.T) {
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.InstagramReferralHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.InstagramReferralHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("referral")
 						return nil
 					}}),
@@ -434,12 +435,12 @@ func TestHandleMessaging(t *testing.T) {
 				  }
 				]
 			  }`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Messaging: []gometawebhooks.Messaging{{
+					Messaging: []handler.Messaging{{
 						Sender: struct {
 							Id string "json:\"id\""
 						}{
@@ -451,7 +452,7 @@ func TestHandleMessaging(t *testing.T) {
 							Id: "123",
 						},
 						Timestamp: 1569262485349,
-						Message: gometawebhooks.Message{
+						Message: handler.Message{
 							Id: "890",
 							QuickReply: struct {
 								Payload string "json:\"payload,omitempty\""
@@ -460,10 +461,10 @@ func TestHandleMessaging(t *testing.T) {
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.InstagramMessageHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.InstagramMessageHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("message")
 						return nil
 					}}),
@@ -509,12 +510,12 @@ func TestHandleMessaging(t *testing.T) {
 				  }
 				]
 			  }`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Messaging: []gometawebhooks.Messaging{{
+					Messaging: []handler.Messaging{{
 						Sender: struct {
 							Id string "json:\"id\""
 						}{
@@ -526,11 +527,11 @@ func TestHandleMessaging(t *testing.T) {
 							Id: "123",
 						},
 						Timestamp: 1569262485349,
-						Message: gometawebhooks.Message{
+						Message: handler.Message{
 							Id: "890",
-							Attachments: []gometawebhooks.Attachment{{
+							Attachments: []handler.Attachment{{
 								Type: "reel",
-								Payload: gometawebhooks.AttachmentPayload{
+								Payload: handler.AttachmentPayload{
 									URL:         "<CDN_URL>",
 									Title:       "reel title",
 									ReelVideoId: "123",
@@ -540,10 +541,10 @@ func TestHandleMessaging(t *testing.T) {
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.InstagramMessageHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.InstagramMessageHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("message")
 						return nil
 					}}),
@@ -589,12 +590,12 @@ func TestHandleMessaging(t *testing.T) {
 				  }
 				]
 			  }`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Messaging: []gometawebhooks.Messaging{{
+					Messaging: []handler.Messaging{{
 						Sender: struct {
 							Id string "json:\"id\""
 						}{
@@ -606,11 +607,11 @@ func TestHandleMessaging(t *testing.T) {
 							Id: "123",
 						},
 						Timestamp: 1569262485349,
-						Message: gometawebhooks.Message{
+						Message: handler.Message{
 							Id: "890",
-							Attachments: []gometawebhooks.Attachment{{
+							Attachments: []handler.Attachment{{
 								Type: "ig_reel",
-								Payload: gometawebhooks.AttachmentPayload{
+								Payload: handler.AttachmentPayload{
 									URL:         "<CDN_URL>",
 									Title:       "reel title",
 									ReelVideoId: "123",
@@ -620,10 +621,10 @@ func TestHandleMessaging(t *testing.T) {
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.InstagramMessageHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.InstagramMessageHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("message")
 						return nil
 					}}),

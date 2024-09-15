@@ -9,10 +9,15 @@ import (
 	gometawebhooks "github.com/pnmcosta/go-meta-webhooks"
 )
 
+var (
+	ErrReadBodyPayload   = fmt.Errorf("error reading body payload: %w", gometawebhooks.ErrWebhooks)
+	ErrInvalidHTTPMethod = fmt.Errorf("invalid HTTP Method: %w", gometawebhooks.ErrWebhooks)
+)
+
 type DefaultHandler interface {
 	gometawebhooks.WebhooksHandler
 
-	HandleRequest(ctx context.Context, r *http.Request) (gometawebhooks.Event, []byte, error)
+	HandleRequest(ctx context.Context, r *http.Request) (Event, []byte, error)
 	HandleVerify(r *http.Request) (string, error)
 }
 
@@ -22,9 +27,9 @@ type defaultHandler struct {
 	*gometawebhooks.Webhooks
 }
 
-func New(opts ...gometawebhooks.Option) (*defaultHandler, error) {
+func New(opts ...Option) (*defaultHandler, error) {
 	if len(opts) == 0 {
-		opts = append(opts, gometawebhooks.Options.CompileSchema())
+		opts = append(opts, Options.CompileSchema())
 	}
 
 	hooks, err := gometawebhooks.New(opts...)
@@ -36,21 +41,21 @@ func New(opts ...gometawebhooks.Option) (*defaultHandler, error) {
 }
 
 // Handles Meta Webhooks POST requests, verifies signature if secret is supplied, validates and parses Event payload.
-func (hooks defaultHandler) HandleRequest(ctx context.Context, r *http.Request) (gometawebhooks.Event, []byte, error) {
+func (hooks defaultHandler) HandleRequest(ctx context.Context, r *http.Request) (Event, []byte, error) {
 	defer func() {
 		_, _ = io.Copy(io.Discard, r.Body)
 		_ = r.Body.Close()
 	}()
 
-	var event gometawebhooks.Event
+	var event Event
 
 	if r.Method != http.MethodPost {
-		return event, []byte{}, gometawebhooks.ErrInvalidHTTPMethod
+		return event, []byte{}, ErrInvalidHTTPMethod
 	}
 
 	payload, err := io.ReadAll(r.Body)
 	if err != nil || len(payload) == 0 {
-		return event, payload, wrapErr(err, gometawebhooks.ErrReadBodyPayload)
+		return event, payload, wrapErr(err, ErrReadBodyPayload)
 	}
 
 	// normalize header keys
@@ -81,7 +86,7 @@ func (hooks defaultHandler) HandleRequest(ctx context.Context, r *http.Request) 
 // Verify Meta Webhooks GET requests, when subscribing on App dashboard to objects and fields.
 func (hooks defaultHandler) HandleVerify(r *http.Request) (string, error) {
 	if r.Method != http.MethodGet {
-		return "", gometawebhooks.ErrInvalidHTTPMethod
+		return "", ErrInvalidHTTPMethod
 	}
 
 	q := r.URL.Query()

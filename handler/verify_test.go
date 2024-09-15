@@ -5,14 +5,16 @@ import (
 	"testing"
 
 	gometawebhooks "github.com/pnmcosta/go-meta-webhooks"
+	"github.com/pnmcosta/go-meta-webhooks/handler"
 )
 
 func TestVerify(t *testing.T) {
+	t.Parallel()
 	scenarios := []hookScenario{
 		{
 			name:      "invalid method",
 			method:    http.MethodPost,
-			expectErr: gometawebhooks.ErrInvalidHTTPMethod,
+			expectErr: handler.ErrInvalidHTTPMethod,
 		},
 		{
 			name:      "invalid mode",
@@ -34,9 +36,9 @@ func TestVerify(t *testing.T) {
 		{
 			name: "verifies",
 			url:  "/webhooks/meta/?hub.mode=subscribe&hub.verify_token=meta_app_webhook_token&hub.challenge=challenge_response",
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.Token("meta_app_webhook_token"),
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.Token("meta_app_webhook_token"),
 				}
 			},
 			method:   http.MethodGet,

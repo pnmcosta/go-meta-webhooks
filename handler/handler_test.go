@@ -17,7 +17,6 @@ import (
 	"testing"
 	"time"
 
-	gometawebhooks "github.com/pnmcosta/go-meta-webhooks"
 	"github.com/pnmcosta/go-meta-webhooks/handler"
 )
 
@@ -25,57 +24,57 @@ type testHandler struct {
 	run func(ctx context.Context) error
 }
 
-// Entry implements gometawebhooks.EntryHandler.
-func (h testHandler) Entry(ctx context.Context, object gometawebhooks.Object, entry gometawebhooks.Entry) error {
+// Entry implements handler.EntryHandler.
+func (h testHandler) Entry(ctx context.Context, object handler.Object, entry handler.Entry) error {
 	return h.run(ctx)
 }
 
-// Changes implements gometawebhooks.ChangesHandler.
-func (h testHandler) Changes(ctx context.Context, object gometawebhooks.Object, entry gometawebhooks.Entry, change gometawebhooks.Change) error {
+// Changes implements handler.ChangesHandler.
+func (h testHandler) Changes(ctx context.Context, object handler.Object, entry handler.Entry, change handler.Change) error {
 	return h.run(ctx)
 }
 
-// Messaging implements gometawebhooks.MessagingHandler.
-func (h testHandler) Messaging(ctx context.Context, object gometawebhooks.Object, entryId string, entryTime time.Time, messaging gometawebhooks.Messaging) error {
+// Messaging implements handler.MessagingHandler.
+func (h testHandler) Messaging(ctx context.Context, object handler.Object, entryId string, entryTime time.Time, messaging handler.Messaging) error {
 	return h.run(ctx)
 }
 
-// InstagramMention implements gometawebhooks.InstagramMentionHandler.
-func (h testHandler) InstagramMention(ctx context.Context, entryId string, entryTime time.Time, mention gometawebhooks.MentionsFieldValue) error {
+// InstagramMention implements handler.InstagramMentionHandler.
+func (h testHandler) InstagramMention(ctx context.Context, entryId string, entryTime time.Time, mention handler.MentionsFieldValue) error {
 	return h.run(ctx)
 }
 
-// InstagramStoryInsights implements gometawebhooks.InstagramStoryInsightsHandler.
-func (h testHandler) InstagramStoryInsights(ctx context.Context, entryId string, entryTime time.Time, storyInsights gometawebhooks.StoryInsightsFieldValue) error {
+// InstagramStoryInsights implements handler.InstagramStoryInsightsHandler.
+func (h testHandler) InstagramStoryInsights(ctx context.Context, entryId string, entryTime time.Time, storyInsights handler.StoryInsightsFieldValue) error {
 	return h.run(ctx)
 }
 
-// InstagramMessage implements gometawebhooks.InstagramMessageHandler.
-func (h testHandler) InstagramMessage(ctx context.Context, sender string, recipient string, sent time.Time, message gometawebhooks.Message) error {
+// InstagramMessage implements handler.InstagramMessageHandler.
+func (h testHandler) InstagramMessage(ctx context.Context, sender string, recipient string, sent time.Time, message handler.Message) error {
 	return h.run(ctx)
 }
 
-// InstagramPostback implements gometawebhooks.InstagramPostbackHandler.
-func (h testHandler) InstagramPostback(ctx context.Context, sender string, recipient string, sent time.Time, postback gometawebhooks.Postback) error {
+// InstagramPostback implements handler.InstagramPostbackHandler.
+func (h testHandler) InstagramPostback(ctx context.Context, sender string, recipient string, sent time.Time, postback handler.Postback) error {
 	return h.run(ctx)
 }
 
-// InstagramReferral implements gometawebhooks.InstagramReferralHandler.
-func (h testHandler) InstagramReferral(ctx context.Context, sender string, recipient string, sent time.Time, referral gometawebhooks.Referral) error {
+// InstagramReferral implements handler.InstagramReferralHandler.
+func (h testHandler) InstagramReferral(ctx context.Context, sender string, recipient string, sent time.Time, referral handler.Referral) error {
 	return h.run(ctx)
 }
 
-var _ gometawebhooks.EntryHandler = (*testHandler)(nil)
-var _ gometawebhooks.ChangesHandler = (*testHandler)(nil)
-var _ gometawebhooks.MessagingHandler = (*testHandler)(nil)
-var _ gometawebhooks.InstagramHandler = (*testHandler)(nil)
+var _ handler.EntryHandler = (*testHandler)(nil)
+var _ handler.ChangesHandler = (*testHandler)(nil)
+var _ handler.MessagingHandler = (*testHandler)(nil)
+var _ handler.InstagramHandler = (*testHandler)(nil)
 
 type hookScenario struct {
 	name             string
 	method           string
 	url              string
 	headers          map[string]string
-	options          func(scenario *hookScenario) []gometawebhooks.Option
+	options          func(scenario *hookScenario) []handler.Option
 	body             io.Reader
 	bodyBytes        []byte
 	expected         interface{}
@@ -103,7 +102,7 @@ func (scenario *hookScenario) setup(t *testing.T) (handler.DefaultHandler, *http
 		scenario.timeout = 7 * time.Millisecond
 	}
 
-	var options []gometawebhooks.Option
+	var options []handler.Option
 	if scenario.options != nil {
 		options = scenario.options(scenario)
 	}

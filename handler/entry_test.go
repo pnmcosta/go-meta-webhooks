@@ -8,6 +8,7 @@ import (
 	"time"
 
 	gometawebhooks "github.com/pnmcosta/go-meta-webhooks"
+	"github.com/pnmcosta/go-meta-webhooks/handler"
 )
 
 func TestHandleEvent(t *testing.T) {
@@ -16,36 +17,36 @@ func TestHandleEvent(t *testing.T) {
 		{
 			name:      "invalid method",
 			method:    http.MethodGet,
-			expectErr: gometawebhooks.ErrInvalidHTTPMethod,
+			expectErr: handler.ErrInvalidHTTPMethod,
 		},
 		{
 			name:      "nil body",
 			method:    http.MethodPost,
-			expectErr: gometawebhooks.ErrReadBodyPayload,
+			expectErr: handler.ErrReadBodyPayload,
 		},
 		{
 			name:      "empty body",
 			method:    http.MethodPost,
 			body:      strings.NewReader(``),
-			expectErr: gometawebhooks.ErrReadBodyPayload,
+			expectErr: handler.ErrReadBodyPayload,
 		},
 		{
 			name:      "malformed body",
 			method:    http.MethodPost,
 			body:      strings.NewReader(`{"object`),
 			expectErr: gometawebhooks.ErrParsingPayload,
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
 				}
 			},
 		},
 		{
 			name:   "missing signature",
 			method: http.MethodPost,
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.Secret("very_secret"),
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.Secret("very_secret"),
 				}
 			},
 			body:      strings.NewReader(`{}`),
@@ -57,9 +58,9 @@ func TestHandleEvent(t *testing.T) {
 			headers: map[string]string{
 				"X-Hub-Signature-256": "1",
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.Secret("very_secret"),
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.Secret("very_secret"),
 				}
 			},
 			body:      strings.NewReader(`{}`),
@@ -71,15 +72,15 @@ func TestHandleEvent(t *testing.T) {
 			headers: map[string]string{
 				"X-Hub-Signature-256": genHmac("very_secret", `{"object":"instagram", "entry":[]}`),
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.Secret("very_secret"),
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.Secret("very_secret"),
 				}
 			},
 			body: strings.NewReader(`{"object":"instagram", "entry":[]}`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry:  []gometawebhooks.Entry{},
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry:  []handler.Entry{},
 			},
 		},
 		{
@@ -87,9 +88,9 @@ func TestHandleEvent(t *testing.T) {
 			method:    http.MethodPost,
 			body:      strings.NewReader(`{}`),
 			expectErr: gometawebhooks.ErrInvalidPayload,
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
 				}
 			},
 		},
@@ -110,23 +111,23 @@ func TestHandleEvent(t *testing.T) {
 					}]
 				}]
 			}`),
-			expected: gometawebhooks.Event{
+			expected: handler.Event{
 				Object: "unsupported",
-				Entry: []gometawebhooks.Entry{{
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Changes: []gometawebhooks.Change{{
+					Changes: []handler.Change{{
 						Field: "mentions",
-						Value: gometawebhooks.MentionsFieldValue{
+						Value: handler.MentionsFieldValue{
 							MediaID:   "999",
 							CommentID: "4444",
 						},
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
 				}
 			},
 			expectErr: gometawebhooks.ErrChangesFieldNotSupported,
@@ -135,9 +136,9 @@ func TestHandleEvent(t *testing.T) {
 			name:   "no entries noop",
 			method: http.MethodPost,
 			body:   strings.NewReader(`{"object":"instagram", "entry":[]}`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry:  []gometawebhooks.Entry{},
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry:  []handler.Entry{},
 			},
 		},
 		{
@@ -177,14 +178,14 @@ func TestHandleEvent(t *testing.T) {
 					}]
 				}]
 				}`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Changes: []gometawebhooks.Change{{
+					Changes: []handler.Change{{
 						Field: "mentions",
-						Value: gometawebhooks.MentionsFieldValue{
+						Value: handler.MentionsFieldValue{
 							MediaID:   "999",
 							CommentID: "4444",
 						},
@@ -192,9 +193,9 @@ func TestHandleEvent(t *testing.T) {
 				}, {
 					Id:   "123",
 					Time: 1569262486134,
-					Changes: []gometawebhooks.Change{{
+					Changes: []handler.Change{{
 						Field: "mentions",
-						Value: gometawebhooks.MentionsFieldValue{
+						Value: handler.MentionsFieldValue{
 							MediaID:   "999",
 							CommentID: "4444",
 						},
@@ -202,19 +203,19 @@ func TestHandleEvent(t *testing.T) {
 				}, {
 					Id:   "123",
 					Time: 1569262486134,
-					Changes: []gometawebhooks.Change{{
+					Changes: []handler.Change{{
 						Field: "mentions",
-						Value: gometawebhooks.MentionsFieldValue{
+						Value: handler.MentionsFieldValue{
 							MediaID:   "999",
 							CommentID: "4444",
 						},
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.InstagramHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.InstagramHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("entry")
 						return nil
 					}}),
@@ -241,10 +242,10 @@ func TestHandleEvent(t *testing.T) {
 					}]
 				}]
 			}`),
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.InstagramHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.InstagramHandler(testHandler{func(ctx context.Context) error {
 						time.Sleep(scenario.timeout * 2)
 						return ctx.Err()
 					}}),

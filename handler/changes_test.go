@@ -8,6 +8,7 @@ import (
 	"time"
 
 	gometawebhooks "github.com/pnmcosta/go-meta-webhooks"
+	"github.com/pnmcosta/go-meta-webhooks/handler"
 )
 
 func TestHandleChange(t *testing.T) {
@@ -30,9 +31,9 @@ func TestHandleChange(t *testing.T) {
 				}]
 			}`),
 			expectErr: gometawebhooks.ErrChangesTypeNotImplemented,
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
 				}
 			},
 		},
@@ -63,19 +64,19 @@ func TestHandleChange(t *testing.T) {
 					}]
 				}]
 			}`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Changes: []gometawebhooks.Change{{
+					Changes: []handler.Change{{
 						Field: "mentions",
-						Value: gometawebhooks.MentionsFieldValue{
+						Value: handler.MentionsFieldValue{
 							MediaID: "999",
 						},
 					}, {
 						Field: "story_insights",
-						Value: gometawebhooks.StoryInsightsFieldValue{
+						Value: handler.StoryInsightsFieldValue{
 							MediaID:     "999",
 							Exits:       1,
 							Replies:     2,
@@ -87,10 +88,10 @@ func TestHandleChange(t *testing.T) {
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.ChangesHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.ChangesHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("change")
 						return nil
 					}}),
@@ -116,23 +117,23 @@ func TestHandleChange(t *testing.T) {
 					}]
 				}]
 			}`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Changes: []gometawebhooks.Change{{
+					Changes: []handler.Change{{
 						Field: "mentions",
-						Value: gometawebhooks.MentionsFieldValue{
+						Value: handler.MentionsFieldValue{
 							MediaID: "999",
 						},
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.InstagramMentionHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.InstagramMentionHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("mention")
 						return nil
 					}}),
@@ -159,24 +160,24 @@ func TestHandleChange(t *testing.T) {
 					}]
 				}]
 			}`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Changes: []gometawebhooks.Change{{
+					Changes: []handler.Change{{
 						Field: "mentions",
-						Value: gometawebhooks.MentionsFieldValue{
+						Value: handler.MentionsFieldValue{
 							MediaID:   "999",
 							CommentID: "4444",
 						},
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.InstagramMentionHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.InstagramMentionHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("mention")
 						return nil
 					}}),
@@ -208,14 +209,14 @@ func TestHandleChange(t *testing.T) {
 					}]
 				}]
 			}`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Changes: []gometawebhooks.Change{{
+					Changes: []handler.Change{{
 						Field: "story_insights",
-						Value: gometawebhooks.StoryInsightsFieldValue{
+						Value: handler.StoryInsightsFieldValue{
 							MediaID:     "999",
 							Exits:       1,
 							Replies:     2,
@@ -227,10 +228,10 @@ func TestHandleChange(t *testing.T) {
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.InstagramStoryInsightsHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.InstagramStoryInsightsHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("storyInsights")
 						return nil
 					}}),
@@ -262,14 +263,14 @@ func TestHandleChange(t *testing.T) {
 					}]
 				}]
 			}`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
+			expected: handler.Event{
+				Object: handler.Instagram,
+				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Changes: []gometawebhooks.Change{{
+					Changes: []handler.Change{{
 						Field: "story_insights",
-						Value: gometawebhooks.StoryInsightsFieldValue{
+						Value: handler.StoryInsightsFieldValue{
 							MediaID:     "999",
 							Exits:       1,
 							Replies:     2,
@@ -281,10 +282,10 @@ func TestHandleChange(t *testing.T) {
 					}},
 				}},
 			},
-			options: func(scenario *hookScenario) []gometawebhooks.Option {
-				return []gometawebhooks.Option{
-					gometawebhooks.Options.CompileSchema(),
-					gometawebhooks.Options.InstagramHandler(testHandler{func(ctx context.Context) error {
+			options: func(scenario *hookScenario) []handler.Option {
+				return []handler.Option{
+					handler.Options.CompileSchema(),
+					handler.Options.InstagramHandler(testHandler{func(ctx context.Context) error {
 						time.Sleep(scenario.timeout * 2)
 						return ctx.Err()
 					}}),
