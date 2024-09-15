@@ -12,7 +12,7 @@ const (
 	HeaderSignatureName = "X-Hub-Signature-256"
 )
 
-func (hooks Webhooks) Parse(body []byte) (Event, error) {
+func (hooks Webhooks) ParsePayload(body []byte) (Event, error) {
 	var event Event
 	if err := json.Unmarshal(body, &event); err != nil {
 		return event, wrapErr(err, ErrParsingEvent)
@@ -20,7 +20,7 @@ func (hooks Webhooks) Parse(body []byte) (Event, error) {
 	return event, nil
 }
 
-func (hooks Webhooks) Validate(body []byte) error {
+func (hooks Webhooks) ValidatePayload(body []byte) error {
 	if validationSchema == nil {
 		return ErrMissingSchema
 	}
@@ -37,7 +37,7 @@ func (hooks Webhooks) Validate(body []byte) error {
 	return nil
 }
 
-func (hooks Webhooks) Verify(body []byte, headers map[string]string) error {
+func (hooks Webhooks) VerifyPayload(body []byte, headers map[string]string) error {
 	// If we have a Secret set, we should check the MAC
 	// https://developers.facebook.com/docs/messenger-platform/webhooks#validate-payloads
 	if len(hooks.secret) == 0 {

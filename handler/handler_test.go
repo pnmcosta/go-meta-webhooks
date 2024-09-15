@@ -1,7 +1,8 @@
-package gometawebhooks_test
+package handler_test
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
@@ -17,7 +18,57 @@ import (
 	"time"
 
 	gometawebhooks "github.com/pnmcosta/go-meta-webhooks"
+	"github.com/pnmcosta/go-meta-webhooks/handler"
 )
+
+type testHandler struct {
+	run func(ctx context.Context) error
+}
+
+// Entry implements gometawebhooks.EntryHandler.
+func (h testHandler) Entry(ctx context.Context, object gometawebhooks.Object, entry gometawebhooks.Entry) error {
+	return h.run(ctx)
+}
+
+// Changes implements gometawebhooks.ChangesHandler.
+func (h testHandler) Changes(ctx context.Context, object gometawebhooks.Object, entry gometawebhooks.Entry, change gometawebhooks.Change) error {
+	return h.run(ctx)
+}
+
+// Messaging implements gometawebhooks.MessagingHandler.
+func (h testHandler) Messaging(ctx context.Context, object gometawebhooks.Object, entryId string, entryTime time.Time, messaging gometawebhooks.Messaging) error {
+	return h.run(ctx)
+}
+
+// InstagramMention implements gometawebhooks.InstagramMentionHandler.
+func (h testHandler) InstagramMention(ctx context.Context, entryId string, entryTime time.Time, mention gometawebhooks.MentionsFieldValue) error {
+	return h.run(ctx)
+}
+
+// InstagramStoryInsights implements gometawebhooks.InstagramStoryInsightsHandler.
+func (h testHandler) InstagramStoryInsights(ctx context.Context, entryId string, entryTime time.Time, storyInsights gometawebhooks.StoryInsightsFieldValue) error {
+	return h.run(ctx)
+}
+
+// InstagramMessage implements gometawebhooks.InstagramMessageHandler.
+func (h testHandler) InstagramMessage(ctx context.Context, sender string, recipient string, sent time.Time, message gometawebhooks.Message) error {
+	return h.run(ctx)
+}
+
+// InstagramPostback implements gometawebhooks.InstagramPostbackHandler.
+func (h testHandler) InstagramPostback(ctx context.Context, sender string, recipient string, sent time.Time, postback gometawebhooks.Postback) error {
+	return h.run(ctx)
+}
+
+// InstagramReferral implements gometawebhooks.InstagramReferralHandler.
+func (h testHandler) InstagramReferral(ctx context.Context, sender string, recipient string, sent time.Time, referral gometawebhooks.Referral) error {
+	return h.run(ctx)
+}
+
+var _ gometawebhooks.EntryHandler = (*testHandler)(nil)
+var _ gometawebhooks.ChangesHandler = (*testHandler)(nil)
+var _ gometawebhooks.MessagingHandler = (*testHandler)(nil)
+var _ gometawebhooks.InstagramHandler = (*testHandler)(nil)
 
 type hookScenario struct {
 	name             string
@@ -45,7 +96,7 @@ func (scenario *hookScenario) test(t *testing.T, f func(t *testing.T)) {
 	t.Run(name, f)
 }
 
-func (scenario *hookScenario) setup(t *testing.T) (*gometawebhooks.Webhooks, *http.Request) {
+func (scenario *hookScenario) setup(t *testing.T) (handler.DefaultHandler, *http.Request) {
 	scenario.mutex = &sync.RWMutex{}
 
 	if scenario.timeout == 0 {
@@ -57,7 +108,7 @@ func (scenario *hookScenario) setup(t *testing.T) (*gometawebhooks.Webhooks, *ht
 		options = scenario.options(scenario)
 	}
 
-	hooks, err := gometawebhooks.New(options...)
+	h, err := handler.New(options...)
 	if err != nil {
 		t.Fatal(err)
 		return nil, nil
@@ -88,7 +139,7 @@ func (scenario *hookScenario) setup(t *testing.T) (*gometawebhooks.Webhooks, *ht
 	// Restore the body to the request for the handler to read
 	req.Body = io.NopCloser(bytes.NewBuffer(scenario.bodyBytes))
 
-	return hooks, req
+	return h, req
 }
 
 func (scenario *hookScenario) assert(t *testing.T, result interface{}, payload []byte, err error) {

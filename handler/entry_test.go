@@ -1,4 +1,4 @@
-package gometawebhooks_test
+package handler_test
 
 import (
 	"context"
@@ -11,6 +11,7 @@ import (
 )
 
 func TestHandleEvent(t *testing.T) {
+	t.Parallel()
 	scenarios := []hookScenario{
 		{
 			name:      "invalid method",
@@ -125,14 +126,10 @@ func TestHandleEvent(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.EntryHandler(testHandler{func() {
-						scenario.trigger("entry")
-					}}),
+					gometawebhooks.Options.CompileSchema(),
 				}
 			},
-			expectedHandlers: map[string]int{
-				"entry": 1,
-			},
+			expectErr: gometawebhooks.ErrChangesFieldNotSupported,
 		},
 		{
 			name:   "no entries noop",
@@ -216,8 +213,10 @@ func TestHandleEvent(t *testing.T) {
 			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.EntryHandler(testHandler{func() {
+					gometawebhooks.Options.CompileSchema(),
+					gometawebhooks.Options.InstagramHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("entry")
+						return nil
 					}}),
 				}
 			},
@@ -242,31 +241,17 @@ func TestHandleEvent(t *testing.T) {
 					}]
 				}]
 			}`),
-			expected: gometawebhooks.Event{
-				Object: gometawebhooks.Instagram,
-				Entry: []gometawebhooks.Entry{{
-					Id:   "123",
-					Time: 1569262486134,
-					Changes: []gometawebhooks.Change{{
-						Field: "mentions",
-						Value: gometawebhooks.MentionsFieldValue{
-							MediaID:   "999",
-							CommentID: "4444",
-						},
-					}},
-				}},
-			},
 			options: func(scenario *hookScenario) []gometawebhooks.Option {
 				return []gometawebhooks.Option{
-					gometawebhooks.Options.EntryHandler(testHandler{func() {
+					gometawebhooks.Options.CompileSchema(),
+					gometawebhooks.Options.InstagramHandler(testHandler{func(ctx context.Context) error {
 						time.Sleep(scenario.timeout * 2)
-						scenario.trigger("entry")
+						return ctx.Err()
 					}}),
 				}
 			},
-			expectErr:        context.DeadlineExceeded,
-			expectedHandlers: map[string]int{"entry": 1},
-			timeout:          50 * time.Millisecond,
+			expectErr: context.DeadlineExceeded,
+			timeout:   50 * time.Millisecond,
 		},
 	}
 

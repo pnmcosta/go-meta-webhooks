@@ -2,8 +2,18 @@ package gometawebhooks
 
 import (
 	"context"
-	"sync"
+	"fmt"
 	"time"
+
+	"golang.org/x/sync/errgroup"
+)
+
+var (
+	ErrMessagingFieldNotSupported         = fmt.Errorf("messaging field not supported: %w", ErrWebhooks)
+	ErrMessagingTypeNotImplemented        = fmt.Errorf("messaging type not implemented: %w", ErrWebhooks)
+	ErrInstagramMessageHandlerNotDefined  = fmt.Errorf("instagram message handler not defined: %w", ErrWebhooks)
+	ErrInstagramPostbackHandlerNotDefined = fmt.Errorf("instagram postback handler not defined: %w", ErrWebhooks)
+	ErrInstagramReferralHandlerNotDefined = fmt.Errorf("instagram referral handler not defined: %w", ErrWebhooks)
 )
 
 type Message struct {
@@ -68,63 +78,65 @@ type Messaging struct {
 }
 
 type MessagingHandler interface {
-	Messaging(ctx context.Context, object Object, entryId string, entryTime time.Time, messaging Messaging)
+	Messaging(ctx context.Context, object Object, entryId string, entryTime time.Time, messaging Messaging) error
 }
 
-func (hooks Webhooks) messaging(ctx context.Context, object Object, entry Entry) {
+func (hooks Webhooks) messaging(ctx context.Context, object Object, entry Entry) error {
 	if len(entry.Messaging) == 0 {
-		return
+		return nil
 	}
 
-	var wg sync.WaitGroup
-out:
+	g := new(errgroup.Group)
+	g.SetLimit(1)
 	for _, messaging := range entry.Messaging {
-		select {
-		case <-ctx.Done():
-			break out
-		default:
-			wg.Add(1)
-			messaging := messaging
-			go func() {
-				defer wg.Done()
-
-				hooks.messagingHandler.Messaging(ctx, object, entry.Id, unixTime(entry.Time), messaging)
-			}()
-		}
+		g.Go(func() error {
+			return hooks.messagingHandler.Messaging(ctx, object, entry.Id, unixTime(entry.Time), messaging)
+		})
 	}
-
-	wg.Wait()
+	return g.Wait()
 }
 
-func (h Webhooks) Messaging(ctx context.Context, object Object, entryId string, entryTime time.Time, messaging Messaging) {
+func (h Webhooks) Messaging(ctx context.Context, object Object, entryId string, entryTime time.Time, messaging Messaging) error {
 	if object != Instagram {
-		return
+		return fmt.Errorf("'%s': %w", object, ErrMessagingFieldNotSupported)
 	}
 
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+		return h.message(ctx, messaging)
+	}
+}
+
+func (h Webhooks) message(ctx context.Context, messaging Messaging) error {
+	if messaging.Message.IsEcho {
+		return nil
+	}
 	sent := unixTime(messaging.Timestamp)
 	if messaging.Message.Id != "" {
-		if messaging.Message.IsEcho {
-			return
+		if h.instagramMessageHandler == nil {
+			return ErrInstagramMessageHandlerNotDefined
 		}
 
-		if h.instagramMessageHandler != nil {
-			h.instagramMessageHandler.InstagramMessage(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Message)
-		}
-
-		return
+		return h.instagramMessageHandler.InstagramMessage(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Message)
 	}
 
 	if messaging.Postback.Id != "" {
-		if h.instagramPostbackHandler != nil {
-			h.instagramPostbackHandler.InstagramPostback(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Postback)
+		if h.instagramPostbackHandler == nil {
+			return ErrInstagramPostbackHandlerNotDefined
 		}
-		return
+
+		return h.instagramPostbackHandler.InstagramPostback(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Postback)
 	}
 
 	if messaging.Referral.Type != "" {
-		if h.instagramReferralHandler != nil {
-			h.instagramReferralHandler.InstagramReferral(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Referral)
+		if h.instagramReferralHandler == nil {
+			return ErrInstagramReferralHandlerNotDefined
 		}
-		return
+
+		return h.instagramReferralHandler.InstagramReferral(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Referral)
 	}
+
+	return ErrMessagingTypeNotImplemented
 }

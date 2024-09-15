@@ -3,7 +3,8 @@ package gometawebhooks
 import (
 	"context"
 	"fmt"
-	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -22,30 +23,31 @@ type Entry struct {
 	Changes   []Change    `json:"changes,omitempty"`
 }
 
-type Event struct {
-	Object Object  `json:"object"`
-	Entry  []Entry `json:"entry"`
-}
-
 type EntryHandler interface {
-	Entry(ctx context.Context, object Object, entry Entry)
+	Entry(ctx context.Context, object Object, entry Entry) error
 }
 
-func (h Webhooks) Entry(ctx context.Context, object Object, entry Entry) {
-	var wg sync.WaitGroup
-	wg.Add(2)
+func (h Webhooks) Entry(ctx context.Context, object Object, entry Entry) error {
+	g := new(errgroup.Group)
+	g.SetLimit(2)
 
-	go func() {
-		defer wg.Done()
+	g.Go(func() error {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			return h.changes(ctx, object, entry)
+		}
+	})
 
-		h.changes(ctx, object, entry)
-	}()
+	g.Go(func() error {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			return h.messaging(ctx, object, entry)
+		}
+	})
 
-	go func() {
-		defer wg.Done()
-
-		h.messaging(ctx, object, entry)
-	}()
-
-	wg.Wait()
+	return g.Wait()
 }

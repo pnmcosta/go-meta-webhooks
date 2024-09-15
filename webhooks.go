@@ -1,6 +1,7 @@
 package gometawebhooks
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -28,6 +29,16 @@ type Webhooks struct {
 	instagramMentionHandler       InstagramMentionHandler
 	instagramStoryInsightsHandler InstagramStoryInsightsHandler
 }
+
+type WebhooksHandler interface {
+	EntryHandler
+	ChangesHandler
+	MessagingHandler
+
+	Handle(context.Context, Event) error
+}
+
+var _ WebhooksHandler = (*Webhooks)(nil)
 
 // Creates and returns a webhooks instance
 func New(options ...Option) (*Webhooks, error) {

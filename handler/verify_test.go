@@ -1,4 +1,4 @@
-package gometawebhooks_test
+package handler_test
 
 import (
 	"net/http"
@@ -17,19 +17,19 @@ func TestVerify(t *testing.T) {
 		{
 			name:      "invalid mode",
 			method:    http.MethodGet,
-			expectErr: gometawebhooks.ErrVerificationFailed,
+			expectErr: gometawebhooks.ErrVerifyTokenFailed,
 		},
 		{
 			name:      "invalid verify_token",
 			url:       "/webhooks/meta/?hub.mode=subscribe",
 			method:    http.MethodGet,
-			expectErr: gometawebhooks.ErrVerificationFailed,
+			expectErr: gometawebhooks.ErrVerifyTokenFailed,
 		},
 		{
 			name:      "missing challenge",
 			url:       "/webhooks/meta/?hub.mode=subscribe&hub.verify_token=123",
 			method:    http.MethodGet,
-			expectErr: gometawebhooks.ErrVerificationFailed,
+			expectErr: gometawebhooks.ErrVerifyTokenFailed,
 		},
 		{
 			name: "verifies",
@@ -48,7 +48,7 @@ func TestVerify(t *testing.T) {
 		scenario.test(t, func(t *testing.T) {
 			hooks, req := scenario.setup(t)
 
-			result, err := hooks.VerifyRequest(req)
+			result, err := hooks.HandleVerify(req)
 
 			scenario.assert(t, result, nil, err)
 		})
