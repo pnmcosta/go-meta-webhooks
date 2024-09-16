@@ -86,8 +86,9 @@ func (hooks Webhooks) messaging(ctx context.Context, object Object, entry Entry)
 		return nil
 	}
 
-	g := new(errgroup.Group)
-	g.SetLimit(1)
+	g, ctx := errgroup.WithContext(ctx)
+
+	g.SetLimit(len(entry.Messaging))
 	for _, messaging := range entry.Messaging {
 		g.Go(func() error {
 			return hooks.messagingHandler.Messaging(ctx, object, entry.Id, unixTime(entry.Time), messaging)
@@ -103,16 +104,17 @@ func (h Webhooks) Messaging(ctx context.Context, object Object, entryId string, 
 
 	select {
 	case <-ctx.Done():
-		return ctx.Err()
+		return context.Cause(ctx)
 	default:
 		return h.message(ctx, messaging)
 	}
 }
 
 func (h Webhooks) message(ctx context.Context, messaging Messaging) error {
-	if messaging.Message.IsEcho {
+	if h.messagingIgnoreEchos && messaging.Message.IsEcho {
 		return nil
 	}
+
 	sent := unixTime(messaging.Timestamp)
 	if messaging.Message.Id != "" {
 		if h.instagramMessageHandler == nil {

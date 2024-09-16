@@ -49,6 +49,13 @@ func (MetaWebhookOptions) MessagingHandler(h MessagingHandler) Option {
 	}
 }
 
+func (MetaWebhookOptions) MessagingIgnoreEchos(ignore bool) Option {
+	return func(hooks *Webhooks) error {
+		hooks.messagingIgnoreEchos = ignore
+		return nil
+	}
+}
+
 // Ensures embedded JSON schema is compiled
 func (MetaWebhookOptions) CompileSchema() Option {
 	return func(hooks *Webhooks) error {

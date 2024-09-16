@@ -77,8 +77,8 @@ func (hooks Webhooks) changes(ctx context.Context, object Object, entry Entry) e
 		return nil
 	}
 
-	g := new(errgroup.Group)
-	g.SetLimit(1)
+	g, ctx := errgroup.WithContext(ctx)
+	g.SetLimit(len(entry.Changes))
 	for _, change := range entry.Changes {
 		g.Go(func() error {
 			return hooks.changesHandler.Changes(ctx, object, entry, change)
@@ -95,7 +95,7 @@ func (h Webhooks) Changes(ctx context.Context, object Object, entry Entry, chang
 
 	select {
 	case <-ctx.Done():
-		return ctx.Err()
+		return context.Cause(ctx)
 	default:
 		return h.change(ctx, entry, change)
 	}

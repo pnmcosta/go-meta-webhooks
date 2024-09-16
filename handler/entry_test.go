@@ -247,7 +247,7 @@ func TestHandleEvent(t *testing.T) {
 					handler.Options.CompileSchema(),
 					handler.Options.InstagramHandler(testHandler{func(ctx context.Context) error {
 						time.Sleep(scenario.timeout * 2)
-						return ctx.Err()
+						return context.Cause(ctx)
 					}}),
 				}
 			},

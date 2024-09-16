@@ -12,13 +12,17 @@ type Event struct {
 }
 
 func (h Webhooks) Handle(ctx context.Context, event Event) error {
-	g := new(errgroup.Group)
-	g.SetLimit(1)
+	if len(event.Entry) == 0 {
+		return nil
+	}
+
+	g, ctx := errgroup.WithContext(ctx)
+	g.SetLimit(len(event.Entry))
 	for _, entry := range event.Entry {
 		g.Go(func() error {
 			select {
 			case <-ctx.Done():
-				return ctx.Err()
+				return context.Cause(ctx)
 			default:
 				return h.Entry(ctx, event.Object, entry)
 			}

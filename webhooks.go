@@ -28,6 +28,8 @@ type Webhooks struct {
 	instagramReferralHandler      InstagramReferralHandler
 	instagramMentionHandler       InstagramMentionHandler
 	instagramStoryInsightsHandler InstagramStoryInsightsHandler
+
+	messagingIgnoreEchos bool
 }
 
 type WebhooksHandler interface {
