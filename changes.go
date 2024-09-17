@@ -10,7 +10,6 @@ import (
 
 var (
 	ErrParsingChanges                          = fmt.Errorf("parsing changes payload: %w", ErrWebhooks)
-	ErrChangesFieldNotSupported                = fmt.Errorf("changes field not supported: %w", ErrWebhooks)
 	ErrChangesTypeNotImplemented               = fmt.Errorf("changes type not implemented: %w", ErrWebhooks)
 	ErrInstagramMentionHandlerNotDefined       = fmt.Errorf("instagram mentions handler not defined: %w", ErrWebhooks)
 	ErrInstagramStoryInsightsHandlerNotDefined = fmt.Errorf("instagram story insights handler not defined: %w", ErrWebhooks)
@@ -90,7 +89,7 @@ func (hooks Webhooks) changes(ctx context.Context, object Object, entry Entry) e
 
 func (h Webhooks) Changes(ctx context.Context, object Object, entry Entry, change Change) error {
 	if object != Instagram {
-		return fmt.Errorf("'%s': %w", object, ErrChangesFieldNotSupported)
+		return fmt.Errorf("'%s': %w", object, ErrObjectNotSupported)
 	}
 
 	select {

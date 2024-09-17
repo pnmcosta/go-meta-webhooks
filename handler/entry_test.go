@@ -130,7 +130,7 @@ func TestHandleEvent(t *testing.T) {
 					handler.Options.CompileSchema(),
 				}
 			},
-			expectErr: gometawebhooks.ErrChangesFieldNotSupported,
+			expectErr: gometawebhooks.ErrObjectNotSupported,
 		},
 		{
 			name:   "no entries noop",

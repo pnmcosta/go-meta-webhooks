@@ -9,7 +9,6 @@ import (
 )
 
 var (
-	ErrMessagingFieldNotSupported         = fmt.Errorf("messaging field not supported: %w", ErrWebhooks)
 	ErrMessagingTypeNotImplemented        = fmt.Errorf("messaging type not implemented: %w", ErrWebhooks)
 	ErrInstagramMessageHandlerNotDefined  = fmt.Errorf("instagram message handler not defined: %w", ErrWebhooks)
 	ErrInstagramPostbackHandlerNotDefined = fmt.Errorf("instagram postback handler not defined: %w", ErrWebhooks)
@@ -99,7 +98,7 @@ func (hooks Webhooks) messaging(ctx context.Context, object Object, entry Entry)
 
 func (h Webhooks) Messaging(ctx context.Context, object Object, entryId string, entryTime time.Time, messaging Messaging) error {
 	if object != Instagram {
-		return fmt.Errorf("'%s': %w", object, ErrMessagingFieldNotSupported)
+		return fmt.Errorf("'%s': %w", object, ErrObjectNotSupported)
 	}
 
 	select {
