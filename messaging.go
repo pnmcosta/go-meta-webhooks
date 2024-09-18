@@ -2,6 +2,7 @@ package gometawebhooks
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 
 	"golang.org/x/sync/errgroup"
@@ -25,7 +26,9 @@ type Message struct {
 	IsUnsupported bool `json:"is_unsupported,omitempty"`
 
 	ReplyTo struct {
-		Id    string `json:"mid,omitempty"`
+		// one
+		Id string `json:"mid,omitempty"`
+		// or another
 		Story struct {
 			ID  string `json:"id,omitempty"`
 			URL string `json:"url,omitempty"`
@@ -50,9 +53,12 @@ type AttachmentPayload struct {
 }
 
 type Referral struct {
-	Type   string `json:"type,omitempty"`
-	Source string `json:"source,omitempty"`
-	Ref    string `json:"ref,omitempty"`
+	Type    string `json:"type,omitempty"`
+	Source  string `json:"source,omitempty"`
+	Ref     string `json:"ref,omitempty"`
+	Product struct {
+		Id string `json:"id,omitempty"`
+	} `product:"ref,omitempty"`
 }
 
 type Postback struct {
@@ -62,21 +68,66 @@ type Postback struct {
 	Referral Referral `json:"referral,omitempty"`
 }
 
-type Messaging struct {
+type MessagingHeader struct {
 	Sender struct {
 		Id string `json:"id"`
 	} `json:"sender"`
 	Recipient struct {
 		Id string `json:"id"`
 	} `json:"recipient"`
-	Timestamp int64    `json:"timestamp"`
-	Message   Message  `json:"message,omitempty"`
-	Postback  Postback `json:"postback,omitempty"`
-	Referral  Referral `json:"referral,omitempty"`
+	Timestamp int64 `json:"timestamp"`
 }
 
-type MessagingHandler interface {
-	Messaging(context.Context, Object, Entry, Messaging) error
+// https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook/#messages
+type MessagingMessage struct {
+	MessagingHeader
+
+	Message Message `json:"message,omitempty"`
+}
+
+// https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook/#messaging-postbacks
+type MessagingPostback struct {
+	MessagingHeader
+
+	Postback Postback `json:"postback,omitempty"`
+}
+
+// https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook/#igme
+type MessagingReferral struct {
+	MessagingHeader
+
+	Referral Referral `json:"referral,omitempty"`
+}
+
+// @todo these
+// https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook/#message-reactions
+// https://developers.facebook.com/docs/messenger-platform/instagram/features/webhook/#messaging-seen
+
+// Wrapper struct for types MessagingMessage, MessagingPostback and MessagingReferral
+type Messaging struct {
+	Type interface{} `json:"-"`
+}
+
+func (t *Messaging) UnmarshalJSON(b []byte) error {
+	var message MessagingMessage
+	if err := json.Unmarshal(b, &message); err == nil && message.Message.Id != "" {
+		t.Type = message
+		return nil
+	}
+
+	var postback MessagingPostback
+	if err := json.Unmarshal(b, &postback); err == nil && postback.Postback.Id != "" {
+		t.Type = postback
+		return nil
+	}
+
+	var referral MessagingReferral
+	if err := json.Unmarshal(b, &referral); err == nil && referral.Referral.Type != "" {
+		t.Type = referral
+		return nil
+	}
+
+	return ErrMessagingTypeNotImplemented
 }
 
 func (hooks Webhooks) messaging(ctx context.Context, object Object, entry Entry) error {
@@ -89,50 +140,38 @@ func (hooks Webhooks) messaging(ctx context.Context, object Object, entry Entry)
 	g.SetLimit(len(entry.Messaging))
 	for _, messaging := range entry.Messaging {
 		g.Go(func() error {
-			return hooks.messagingHandler.Messaging(ctx, object, entry, messaging)
+			return hooks.message(ctx, object, entry, messaging)
 		})
 	}
 	return g.Wait()
 }
 
-func (h Webhooks) Messaging(ctx context.Context, object Object, entry Entry, messaging Messaging) error {
-	select {
-	case <-ctx.Done():
-		return context.Cause(ctx)
-	default:
-		return h.message(ctx, object, entry, messaging)
-	}
-}
-
 func (h Webhooks) message(ctx context.Context, object Object, entry Entry, messaging Messaging) error {
-	if h.messagingIgnoreEchos && messaging.Message.IsEcho {
-		return nil
-	}
+	switch value := messaging.Type.(type) {
+	case MessagingMessage:
+		if h.ignoreEchoMessages && value.Message.IsEcho {
+			return nil
+		}
 
-	sent := unixTime(messaging.Timestamp)
-	if messaging.Message.Id != "" {
 		if h.instagramMessageHandler == nil {
 			return ErrInstagramMessageHandlerNotDefined
 		}
 
-		return h.instagramMessageHandler.InstagramMessage(ctx, object, entry, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Message)
-	}
-
-	if messaging.Postback.Id != "" {
+		return h.instagramMessageHandler.InstagramMessage(ctx, object, entry, value)
+	case MessagingPostback:
 		if h.instagramPostbackHandler == nil {
 			return ErrInstagramPostbackHandlerNotDefined
 		}
 
-		return h.instagramPostbackHandler.InstagramPostback(ctx, object, entry, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Postback)
-	}
-
-	if messaging.Referral.Type != "" {
+		return h.instagramPostbackHandler.InstagramPostback(ctx, object, entry, value)
+	case MessagingReferral:
 		if h.instagramReferralHandler == nil {
 			return ErrInstagramReferralHandlerNotDefined
 		}
 
-		return h.instagramReferralHandler.InstagramReferral(ctx, object, entry, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Referral)
+		return h.instagramReferralHandler.InstagramReferral(ctx, object, entry, value)
+	default:
+		// @note should not be hit cause Unmarshall ensures field is supported
+		return ErrMessagingTypeNotImplemented
 	}
-
-	return ErrMessagingTypeNotImplemented
 }

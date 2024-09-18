@@ -24,49 +24,31 @@ type testHandler struct {
 	run func(ctx context.Context) error
 }
 
-// Entry implements handler.EntryHandler.
-func (h testHandler) Entry(ctx context.Context, object handler.Object, entry handler.Entry) error {
-	return h.run(ctx)
-}
-
-// Changes implements handler.ChangesHandler.
-func (h testHandler) Changes(ctx context.Context, object handler.Object, entry handler.Entry, change handler.Change) error {
-	return h.run(ctx)
-}
-
-// Messaging implements handler.MessagingHandler.
-func (h testHandler) Messaging(ctx context.Context, object handler.Object, entry handler.Entry, messaging handler.Messaging) error {
-	return h.run(ctx)
-}
-
 // InstagramMention implements handler.InstagramMentionHandler.
-func (h testHandler) InstagramMention(ctx context.Context, object handler.Object, entry handler.Entry, mention handler.MentionsFieldValue) error {
+func (h testHandler) InstagramMention(ctx context.Context, object handler.Object, entry handler.Entry, mention handler.Mention) error {
 	return h.run(ctx)
 }
 
 // InstagramStoryInsights implements handler.InstagramStoryInsightsHandler.
-func (h testHandler) InstagramStoryInsights(ctx context.Context, object handler.Object, entry handler.Entry, storyInsights handler.StoryInsightsFieldValue) error {
+func (h testHandler) InstagramStoryInsights(ctx context.Context, object handler.Object, entry handler.Entry, storyInsights handler.StoryInsights) error {
 	return h.run(ctx)
 }
 
 // InstagramMessage implements handler.InstagramMessageHandler.
-func (h testHandler) InstagramMessage(ctx context.Context, object handler.Object, entry handler.Entry, sender string, recipient string, sent time.Time, message handler.Message) error {
+func (h testHandler) InstagramMessage(ctx context.Context, object handler.Object, entry handler.Entry, message handler.MessagingMessage) error {
 	return h.run(ctx)
 }
 
 // InstagramPostback implements handler.InstagramPostbackHandler.
-func (h testHandler) InstagramPostback(ctx context.Context, object handler.Object, entry handler.Entry, sender string, recipient string, sent time.Time, postback handler.Postback) error {
+func (h testHandler) InstagramPostback(ctx context.Context, object handler.Object, entry handler.Entry, postback handler.MessagingPostback) error {
 	return h.run(ctx)
 }
 
 // InstagramReferral implements handler.InstagramReferralHandler.
-func (h testHandler) InstagramReferral(ctx context.Context, object handler.Object, entry handler.Entry, sender string, recipient string, sent time.Time, referral handler.Referral) error {
+func (h testHandler) InstagramReferral(ctx context.Context, object handler.Object, entry handler.Entry, referral handler.MessagingReferral) error {
 	return h.run(ctx)
 }
 
-var _ handler.EntryHandler = (*testHandler)(nil)
-var _ handler.ChangesHandler = (*testHandler)(nil)
-var _ handler.MessagingHandler = (*testHandler)(nil)
 var _ handler.InstagramHandler = (*testHandler)(nil)
 
 type hookScenario struct {

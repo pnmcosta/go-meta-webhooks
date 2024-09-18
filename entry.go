@@ -39,11 +39,7 @@ func (t *Entry) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type EntryHandler interface {
-	Entry(context.Context, Object, Entry) error
-}
-
-func (h Webhooks) Entry(ctx context.Context, object Object, entry Entry) error {
+func (h Webhooks) entry(ctx context.Context, object Object, entry Entry) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.SetLimit(2)

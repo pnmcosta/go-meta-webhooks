@@ -25,33 +25,9 @@ func (MetaWebhookOptions) Token(token string) Option {
 	}
 }
 
-// Overrides the default EntryHandler, please note this will override object handler options.
-func (MetaWebhookOptions) EntryHandler(h EntryHandler) Option {
+func (MetaWebhookOptions) IgnoreEchoMessages(ignore bool) Option {
 	return func(hooks *Webhooks) error {
-		hooks.entryHandler = h
-		return nil
-	}
-}
-
-// Overrides the default ChangesHandler, please note this will override object handler options.
-func (MetaWebhookOptions) ChangesHandler(h ChangesHandler) Option {
-	return func(hooks *Webhooks) error {
-		hooks.changesHandler = h
-		return nil
-	}
-}
-
-// Overrides the default MessagingHandler, please note this will override object handler options.
-func (MetaWebhookOptions) MessagingHandler(h MessagingHandler) Option {
-	return func(hooks *Webhooks) error {
-		hooks.messagingHandler = h
-		return nil
-	}
-}
-
-func (MetaWebhookOptions) MessagingIgnoreEchos(ignore bool) Option {
-	return func(hooks *Webhooks) error {
-		hooks.messagingIgnoreEchos = ignore
+		hooks.ignoreEchoMessages = ignore
 		return nil
 	}
 }

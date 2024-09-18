@@ -2,27 +2,26 @@ package gometawebhooks
 
 import (
 	"context"
-	"time"
 )
 
 type InstagramMessageHandler interface {
-	InstagramMessage(ctx context.Context, object Object, entry Entry, sender, recipient string, sent time.Time, message Message) error
+	InstagramMessage(ctx context.Context, object Object, entry Entry, message MessagingMessage) error
 }
 
 type InstagramPostbackHandler interface {
-	InstagramPostback(ctx context.Context, object Object, entry Entry, sender, recipient string, sent time.Time, postback Postback) error
+	InstagramPostback(ctx context.Context, object Object, entry Entry, postback MessagingPostback) error
 }
 
 type InstagramReferralHandler interface {
-	InstagramReferral(ctx context.Context, object Object, entry Entry, sender, recipient string, sent time.Time, referral Referral) error
+	InstagramReferral(ctx context.Context, object Object, entry Entry, referral MessagingReferral) error
 }
 
 type InstagramMentionHandler interface {
-	InstagramMention(ctx context.Context, object Object, entry Entry, mention MentionsFieldValue) error
+	InstagramMention(ctx context.Context, object Object, entry Entry, mention Mention) error
 }
 
 type InstagramStoryInsightsHandler interface {
-	InstagramStoryInsights(ctx context.Context, object Object, entry Entry, storyInsights StoryInsightsFieldValue) error
+	InstagramStoryInsights(ctx context.Context, object Object, entry Entry, storyInsights StoryInsights) error
 }
 
 type InstagramChangesHandler interface {

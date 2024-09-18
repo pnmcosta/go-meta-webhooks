@@ -15,9 +15,10 @@ type (
 	Attachment        = gometawebhooks.Attachment
 	AttachmentPayload = gometawebhooks.AttachmentPayload
 
-	EntryHandler                  = gometawebhooks.EntryHandler
-	ChangesHandler                = gometawebhooks.ChangesHandler
-	MessagingHandler              = gometawebhooks.MessagingHandler
+	MessagingHeader               = gometawebhooks.MessagingHeader
+	MessagingMessage              = gometawebhooks.MessagingMessage
+	MessagingPostback             = gometawebhooks.MessagingPostback
+	MessagingReferral             = gometawebhooks.MessagingReferral
 	InstagramHandler              = gometawebhooks.InstagramHandler
 	InstagramChangesHandler       = gometawebhooks.InstagramChangesHandler
 	InstagramMentionHandler       = gometawebhooks.InstagramMentionHandler
@@ -27,8 +28,8 @@ type (
 	InstagramReferralHandler      = gometawebhooks.InstagramReferralHandler
 	InstagramStoryInsightsHandler = gometawebhooks.InstagramStoryInsightsHandler
 
-	MentionsFieldValue      = gometawebhooks.MentionsFieldValue
-	StoryInsightsFieldValue = gometawebhooks.StoryInsightsFieldValue
+	Mention       = gometawebhooks.Mention
+	StoryInsights = gometawebhooks.StoryInsights
 )
 
 var Options = gometawebhooks.Options

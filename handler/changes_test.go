@@ -71,12 +71,12 @@ func TestHandleChange(t *testing.T) {
 					Time: 1569262486134,
 					Changes: []handler.Change{{
 						Field: "mentions",
-						Value: handler.MentionsFieldValue{
+						Value: handler.Mention{
 							MediaID: "999",
 						},
 					}, {
 						Field: "story_insights",
-						Value: handler.StoryInsightsFieldValue{
+						Value: handler.StoryInsights{
 							MediaID:     "999",
 							Exits:       1,
 							Replies:     2,
@@ -91,7 +91,7 @@ func TestHandleChange(t *testing.T) {
 			options: func(scenario *hookScenario) []handler.Option {
 				return []handler.Option{
 					handler.Options.CompileSchema(),
-					handler.Options.ChangesHandler(testHandler{func(ctx context.Context) error {
+					handler.Options.InstagramChangesHandler(testHandler{func(ctx context.Context) error {
 						scenario.trigger("change")
 						return nil
 					}}),
@@ -124,7 +124,7 @@ func TestHandleChange(t *testing.T) {
 					Time: 1569262486134,
 					Changes: []handler.Change{{
 						Field: "mentions",
-						Value: handler.MentionsFieldValue{
+						Value: handler.Mention{
 							MediaID: "999",
 						},
 					}},
@@ -167,7 +167,7 @@ func TestHandleChange(t *testing.T) {
 					Time: 1569262486134,
 					Changes: []handler.Change{{
 						Field: "mentions",
-						Value: handler.MentionsFieldValue{
+						Value: handler.Mention{
 							MediaID:   "999",
 							CommentID: "4444",
 						},
@@ -216,7 +216,7 @@ func TestHandleChange(t *testing.T) {
 					Time: 1569262486134,
 					Changes: []handler.Change{{
 						Field: "story_insights",
-						Value: handler.StoryInsightsFieldValue{
+						Value: handler.StoryInsights{
 							MediaID:     "999",
 							Exits:       1,
 							Replies:     2,
@@ -270,7 +270,7 @@ func TestHandleChange(t *testing.T) {
 					Time: 1569262486134,
 					Changes: []handler.Change{{
 						Field: "story_insights",
-						Value: handler.StoryInsightsFieldValue{
+						Value: handler.StoryInsights{
 							MediaID:     "999",
 							Exits:       1,
 							Replies:     2,

@@ -70,68 +70,83 @@ func TestHandleMessaging(t *testing.T) {
 				Entry: []handler.Entry{{
 					Id:   "123",
 					Time: 1569262486134,
-					Messaging: []handler.Messaging{{
-						Sender: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "567",
+					Messaging: []handler.Messaging{
+						{
+							Type: handler.MessagingMessage{
+								MessagingHeader: handler.MessagingHeader{
+									Sender: struct {
+										Id string "json:\"id\""
+									}{
+										Id: "567",
+									},
+									Recipient: struct {
+										Id string "json:\"id\""
+									}{
+										Id: "123",
+									},
+									Timestamp: 1569262485349,
+								},
+								Message: handler.Message{
+									Id:   "MESSAGE_ID",
+									Text: "message from 567",
+								},
+							},
 						},
-						Recipient: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "123",
+						{
+							Type: handler.MessagingMessage{
+								MessagingHeader: handler.MessagingHeader{
+									Sender: struct {
+										Id string "json:\"id\""
+									}{
+										Id: "444",
+									},
+									Recipient: struct {
+										Id string "json:\"id\""
+									}{
+										Id: "123",
+									},
+									Timestamp: 1569262485349,
+								},
+								Message: handler.Message{
+									Id:   "MESSAGE_ID",
+									Text: "message from 444",
+								},
+							},
 						},
-						Timestamp: 1569262485349,
-						Message: handler.Message{
-							Id:   "MESSAGE_ID",
-							Text: "message from 567",
-						},
-					}, {
-						Sender: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "444",
-						},
-						Recipient: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "123",
-						},
-						Timestamp: 1569262485349,
-						Message: handler.Message{
-							Id:   "MESSAGE_ID",
-							Text: "message from 444",
-						},
-					}, {
-						Sender: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "666",
-						},
-						Recipient: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "123",
-						},
-						Timestamp: 1569262485349,
-						Message: handler.Message{
-							Id:   "MESSAGE_ID",
-							Text: "message from 666",
-						},
-					}},
+						{
+							Type: handler.MessagingMessage{
+								MessagingHeader: handler.MessagingHeader{
+									Sender: struct {
+										Id string "json:\"id\""
+									}{
+										Id: "666",
+									},
+									Recipient: struct {
+										Id string "json:\"id\""
+									}{
+										Id: "123",
+									},
+									Timestamp: 1569262485349,
+								},
+								Message: handler.Message{
+									Id:   "MESSAGE_ID",
+									Text: "message from 666",
+								},
+							},
+						}},
 				}},
 			},
 			options: func(scenario *hookScenario) []handler.Option {
 				return []handler.Option{
 					handler.Options.CompileSchema(),
-					handler.Options.MessagingHandler(testHandler{func(ctx context.Context) error {
-						scenario.trigger("messaging")
+					handler.Options.InstagramMessageHandler(testHandler{func(ctx context.Context) error {
+						scenario.trigger("message")
 						return nil
 					}}),
 				}
 			},
 			expectedHandlers: map[string]int{
-				"messaging": 3,
+				"message": 3,
 			},
 		},
 		{
@@ -174,25 +189,29 @@ func TestHandleMessaging(t *testing.T) {
 					Id:   "123",
 					Time: 1569262486134,
 					Messaging: []handler.Messaging{{
-						Sender: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "567",
-						},
-						Recipient: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "123",
-						},
-						Timestamp: 1569262485349,
-						Message: handler.Message{
-							Id: "890",
-							Attachments: []handler.Attachment{{
-								Type: "story_mention",
-								Payload: handler.AttachmentPayload{
-									URL: "<CDN_URL>",
+						Type: handler.MessagingMessage{
+							MessagingHeader: handler.MessagingHeader{
+								Sender: struct {
+									Id string "json:\"id\""
+								}{
+									Id: "567",
 								},
-							}},
+								Recipient: struct {
+									Id string "json:\"id\""
+								}{
+									Id: "123",
+								},
+								Timestamp: 1569262485349,
+							},
+							Message: handler.Message{
+								Id: "890",
+								Attachments: []handler.Attachment{{
+									Type: "story_mention",
+									Payload: handler.AttachmentPayload{
+										URL: "<CDN_URL>",
+									},
+								}},
+							},
 						},
 					}},
 				}},
@@ -243,20 +262,24 @@ func TestHandleMessaging(t *testing.T) {
 					Id:   "123",
 					Time: 1569262486134,
 					Messaging: []handler.Messaging{{
-						Sender: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "567",
-						},
-						Recipient: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "123",
-						},
-						Timestamp: 1569262485349,
-						Message: handler.Message{
-							Id:   "890",
-							Text: "Text in message",
+						Type: handler.MessagingMessage{
+							MessagingHeader: handler.MessagingHeader{
+								Sender: struct {
+									Id string "json:\"id\""
+								}{
+									Id: "567",
+								},
+								Recipient: struct {
+									Id string "json:\"id\""
+								}{
+									Id: "123",
+								},
+								Timestamp: 1569262485349,
+							},
+							Message: handler.Message{
+								Id:   "890",
+								Text: "Text in message",
+							},
 						},
 					}},
 				}},
@@ -293,7 +316,7 @@ func TestHandleMessaging(t *testing.T) {
 						},
 						"timestamp": 1569262485349,
 						"postback": {
-							"mid":"MESSAGE-ID",           
+							"mid":"MESSAGE-ID",
 							"title": "SELECTED-ICEBREAKER-REPLY-OR-CTA-BUTTON",
 							"payload": "CUSTOMER-RESPONSE-PAYLOAD"
 						}
@@ -308,21 +331,25 @@ func TestHandleMessaging(t *testing.T) {
 					Id:   "123",
 					Time: 1569262486134,
 					Messaging: []handler.Messaging{{
-						Sender: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "567",
-						},
-						Recipient: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "123",
-						},
-						Timestamp: 1569262485349,
-						Postback: handler.Postback{
-							Id:      "MESSAGE-ID",
-							Title:   "SELECTED-ICEBREAKER-REPLY-OR-CTA-BUTTON",
-							Payload: "CUSTOMER-RESPONSE-PAYLOAD",
+						Type: handler.MessagingPostback{
+							MessagingHeader: handler.MessagingHeader{
+								Sender: struct {
+									Id string "json:\"id\""
+								}{
+									Id: "567",
+								},
+								Recipient: struct {
+									Id string "json:\"id\""
+								}{
+									Id: "123",
+								},
+								Timestamp: 1569262485349,
+							},
+							Postback: handler.Postback{
+								Id:      "MESSAGE-ID",
+								Title:   "SELECTED-ICEBREAKER-REPLY-OR-CTA-BUTTON",
+								Payload: "CUSTOMER-RESPONSE-PAYLOAD",
+							},
 						},
 					}},
 				}},
@@ -359,7 +386,7 @@ func TestHandleMessaging(t *testing.T) {
 						},
 						"timestamp": 1569262485349,
 						"referral": {
-							"ref":"INFORMATION-INCLUDED-IN-REF-PARAMETER-OF-IGME-LINK",           
+							"ref":"INFORMATION-INCLUDED-IN-REF-PARAMETER-OF-IGME-LINK",
 							"source": "IGME-SOURCE-LINK",
 							"type": "OPEN_THREAD"
 						}
@@ -374,21 +401,25 @@ func TestHandleMessaging(t *testing.T) {
 					Id:   "123",
 					Time: 1569262486134,
 					Messaging: []handler.Messaging{{
-						Sender: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "567",
-						},
-						Recipient: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "123",
-						},
-						Timestamp: 1569262485349,
-						Referral: handler.Referral{
-							Ref:    "INFORMATION-INCLUDED-IN-REF-PARAMETER-OF-IGME-LINK",
-							Source: "IGME-SOURCE-LINK",
-							Type:   "OPEN_THREAD",
+						Type: handler.MessagingReferral{
+							MessagingHeader: handler.MessagingHeader{
+								Sender: struct {
+									Id string "json:\"id\""
+								}{
+									Id: "567",
+								},
+								Recipient: struct {
+									Id string "json:\"id\""
+								}{
+									Id: "123",
+								},
+								Timestamp: 1569262485349,
+							},
+							Referral: handler.Referral{
+								Ref:    "INFORMATION-INCLUDED-IN-REF-PARAMETER-OF-IGME-LINK",
+								Source: "IGME-SOURCE-LINK",
+								Type:   "OPEN_THREAD",
+							},
 						},
 					}},
 				}},
@@ -441,22 +472,26 @@ func TestHandleMessaging(t *testing.T) {
 					Id:   "123",
 					Time: 1569262486134,
 					Messaging: []handler.Messaging{{
-						Sender: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "567",
-						},
-						Recipient: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "123",
-						},
-						Timestamp: 1569262485349,
-						Message: handler.Message{
-							Id: "890",
-							QuickReply: struct {
-								Payload string "json:\"payload,omitempty\""
-							}{"QR-PAYLOAD"},
+						Type: handler.MessagingMessage{
+							MessagingHeader: handler.MessagingHeader{
+								Sender: struct {
+									Id string "json:\"id\""
+								}{
+									Id: "567",
+								},
+								Recipient: struct {
+									Id string "json:\"id\""
+								}{
+									Id: "123",
+								},
+								Timestamp: 1569262485349,
+							},
+							Message: handler.Message{
+								Id: "890",
+								QuickReply: struct {
+									Payload string "json:\"payload,omitempty\""
+								}{"QR-PAYLOAD"},
+							},
 						},
 					}},
 				}},
@@ -516,27 +551,31 @@ func TestHandleMessaging(t *testing.T) {
 					Id:   "123",
 					Time: 1569262486134,
 					Messaging: []handler.Messaging{{
-						Sender: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "567",
-						},
-						Recipient: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "123",
-						},
-						Timestamp: 1569262485349,
-						Message: handler.Message{
-							Id: "890",
-							Attachments: []handler.Attachment{{
-								Type: "reel",
-								Payload: handler.AttachmentPayload{
-									URL:         "<CDN_URL>",
-									Title:       "reel title",
-									ReelVideoId: "123",
+						Type: handler.MessagingMessage{
+							MessagingHeader: handler.MessagingHeader{
+								Sender: struct {
+									Id string "json:\"id\""
+								}{
+									Id: "567",
 								},
-							}},
+								Recipient: struct {
+									Id string "json:\"id\""
+								}{
+									Id: "123",
+								},
+								Timestamp: 1569262485349,
+							},
+							Message: handler.Message{
+								Id: "890",
+								Attachments: []handler.Attachment{{
+									Type: "reel",
+									Payload: handler.AttachmentPayload{
+										URL:         "<CDN_URL>",
+										Title:       "reel title",
+										ReelVideoId: "123",
+									},
+								}},
+							},
 						},
 					}},
 				}},
@@ -596,27 +635,31 @@ func TestHandleMessaging(t *testing.T) {
 					Id:   "123",
 					Time: 1569262486134,
 					Messaging: []handler.Messaging{{
-						Sender: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "567",
-						},
-						Recipient: struct {
-							Id string "json:\"id\""
-						}{
-							Id: "123",
-						},
-						Timestamp: 1569262485349,
-						Message: handler.Message{
-							Id: "890",
-							Attachments: []handler.Attachment{{
-								Type: "ig_reel",
-								Payload: handler.AttachmentPayload{
-									URL:         "<CDN_URL>",
-									Title:       "reel title",
-									ReelVideoId: "123",
+						Type: handler.MessagingMessage{
+							MessagingHeader: handler.MessagingHeader{
+								Sender: struct {
+									Id string "json:\"id\""
+								}{
+									Id: "567",
 								},
-							}},
+								Recipient: struct {
+									Id string "json:\"id\""
+								}{
+									Id: "123",
+								},
+								Timestamp: 1569262485349,
+							},
+							Message: handler.Message{
+								Id: "890",
+								Attachments: []handler.Attachment{{
+									Type: "ig_reel",
+									Payload: handler.AttachmentPayload{
+										URL:         "<CDN_URL>",
+										Title:       "reel title",
+										ReelVideoId: "123",
+									},
+								}},
+							},
 						},
 					}},
 				}},

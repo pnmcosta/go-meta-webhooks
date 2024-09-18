@@ -24,7 +24,7 @@ func (h Webhooks) Handle(ctx context.Context, event Event) error {
 			case <-ctx.Done():
 				return context.Cause(ctx)
 			default:
-				return h.Entry(ctx, event.Object, entry)
+				return h.entry(ctx, event.Object, entry)
 			}
 		})
 	}

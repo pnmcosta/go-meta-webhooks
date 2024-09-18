@@ -118,7 +118,7 @@ func TestHandleEvent(t *testing.T) {
 					Time: 1569262486134,
 					Changes: []handler.Change{{
 						Field: "mentions",
-						Value: handler.MentionsFieldValue{
+						Value: handler.Mention{
 							MediaID:   "999",
 							CommentID: "4444",
 						},
@@ -185,7 +185,7 @@ func TestHandleEvent(t *testing.T) {
 					Time: 1569262486134,
 					Changes: []handler.Change{{
 						Field: "mentions",
-						Value: handler.MentionsFieldValue{
+						Value: handler.Mention{
 							MediaID:   "999",
 							CommentID: "4444",
 						},
@@ -195,7 +195,7 @@ func TestHandleEvent(t *testing.T) {
 					Time: 1569262486134,
 					Changes: []handler.Change{{
 						Field: "mentions",
-						Value: handler.MentionsFieldValue{
+						Value: handler.Mention{
 							MediaID:   "999",
 							CommentID: "4444",
 						},
@@ -205,7 +205,7 @@ func TestHandleEvent(t *testing.T) {
 					Time: 1569262486134,
 					Changes: []handler.Change{{
 						Field: "mentions",
-						Value: handler.MentionsFieldValue{
+						Value: handler.Mention{
 							MediaID:   "999",
 							CommentID: "4444",
 						},
