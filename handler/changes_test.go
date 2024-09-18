@@ -30,7 +30,7 @@ func TestHandleChange(t *testing.T) {
 					}]
 				}]
 			}`),
-			expectErr: gometawebhooks.ErrChangesTypeNotImplemented,
+			expectErr: gometawebhooks.ErrChangesFieldNotImplemented,
 			options: func(scenario *hookScenario) []handler.Option {
 				return []handler.Option{
 					handler.Options.CompileSchema(),

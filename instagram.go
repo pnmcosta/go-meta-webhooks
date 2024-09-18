@@ -6,23 +6,23 @@ import (
 )
 
 type InstagramMessageHandler interface {
-	InstagramMessage(ctx context.Context, sender, recipient string, sent time.Time, message Message) error
+	InstagramMessage(ctx context.Context, object Object, entry Entry, sender, recipient string, sent time.Time, message Message) error
 }
 
 type InstagramPostbackHandler interface {
-	InstagramPostback(ctx context.Context, sender, recipient string, sent time.Time, postback Postback) error
+	InstagramPostback(ctx context.Context, object Object, entry Entry, sender, recipient string, sent time.Time, postback Postback) error
 }
 
 type InstagramReferralHandler interface {
-	InstagramReferral(ctx context.Context, sender, recipient string, sent time.Time, referral Referral) error
+	InstagramReferral(ctx context.Context, object Object, entry Entry, sender, recipient string, sent time.Time, referral Referral) error
 }
 
 type InstagramMentionHandler interface {
-	InstagramMention(ctx context.Context, entryId string, entryTime time.Time, mention MentionsFieldValue) error
+	InstagramMention(ctx context.Context, object Object, entry Entry, mention MentionsFieldValue) error
 }
 
 type InstagramStoryInsightsHandler interface {
-	InstagramStoryInsights(ctx context.Context, entryId string, entryTime time.Time, storyInsights StoryInsightsFieldValue) error
+	InstagramStoryInsights(ctx context.Context, object Object, entry Entry, storyInsights StoryInsightsFieldValue) error
 }
 
 type InstagramChangesHandler interface {

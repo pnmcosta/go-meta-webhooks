@@ -2,7 +2,8 @@ package gometawebhooks
 
 import (
 	_ "embed"
-	"fmt"
+	"errors"
+	"sync"
 
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
@@ -12,12 +13,15 @@ var (
 	embedSchema      string
 	validationSchema *jsonschema.Schema
 
-	ErrSchemaCompile  = fmt.Errorf("failed to compile schema: %w", ErrWebhooks)
-	ErrMissingSchema  = fmt.Errorf("missing embedded schema: %w", ErrWebhooks)
-	ErrInvalidPayload = fmt.Errorf("invalid payload: %w", ErrWebhooks)
+	ErrSchemaCompile = errors.New("failed to compile schema")
+	ErrMissingSchema = errors.New("missing embedded schema")
+
+	mu sync.RWMutex
 )
 
 func (hooks *Webhooks) compileSchema() error {
+	mu.Lock()
+	defer mu.Unlock()
 	if validationSchema != nil {
 		return nil
 	}

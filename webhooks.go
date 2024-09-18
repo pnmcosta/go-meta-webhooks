@@ -8,8 +8,7 @@ import (
 )
 
 var (
-	ErrWebhooks       = errors.New("gometawebhooks")
-	ErrApplyingOption = fmt.Errorf("error applying option: %w", ErrWebhooks)
+	ErrApplyingOption = errors.New("error applying option")
 )
 
 // Webhooks instance contains all methods needed to process object events
@@ -72,7 +71,7 @@ func New(options ...Option) (*Webhooks, error) {
 }
 
 func wrapErr(err, target error) error {
-	return fmt.Errorf("%s: %w", err, target)
+	return fmt.Errorf("%w: %w", err, target)
 }
 
 func unixTime(timeMs int64) time.Time {

@@ -2,17 +2,16 @@ package gometawebhooks
 
 import (
 	"context"
-	"fmt"
-	"time"
+	"errors"
 
 	"golang.org/x/sync/errgroup"
 )
 
 var (
-	ErrMessagingTypeNotImplemented        = fmt.Errorf("messaging type not implemented: %w", ErrWebhooks)
-	ErrInstagramMessageHandlerNotDefined  = fmt.Errorf("instagram message handler not defined: %w", ErrWebhooks)
-	ErrInstagramPostbackHandlerNotDefined = fmt.Errorf("instagram postback handler not defined: %w", ErrWebhooks)
-	ErrInstagramReferralHandlerNotDefined = fmt.Errorf("instagram referral handler not defined: %w", ErrWebhooks)
+	ErrMessagingTypeNotImplemented        = errors.New("messaging type not implemented")
+	ErrInstagramMessageHandlerNotDefined  = errors.New("instagram message handler not defined")
+	ErrInstagramPostbackHandlerNotDefined = errors.New("instagram postback handler not defined")
+	ErrInstagramReferralHandlerNotDefined = errors.New("instagram referral handler not defined")
 )
 
 type Message struct {
@@ -77,7 +76,7 @@ type Messaging struct {
 }
 
 type MessagingHandler interface {
-	Messaging(ctx context.Context, object Object, entryId string, entryTime time.Time, messaging Messaging) error
+	Messaging(context.Context, Object, Entry, Messaging) error
 }
 
 func (hooks Webhooks) messaging(ctx context.Context, object Object, entry Entry) error {
@@ -90,26 +89,22 @@ func (hooks Webhooks) messaging(ctx context.Context, object Object, entry Entry)
 	g.SetLimit(len(entry.Messaging))
 	for _, messaging := range entry.Messaging {
 		g.Go(func() error {
-			return hooks.messagingHandler.Messaging(ctx, object, entry.Id, unixTime(entry.Time), messaging)
+			return hooks.messagingHandler.Messaging(ctx, object, entry, messaging)
 		})
 	}
 	return g.Wait()
 }
 
-func (h Webhooks) Messaging(ctx context.Context, object Object, entryId string, entryTime time.Time, messaging Messaging) error {
-	if object != Instagram {
-		return fmt.Errorf("'%s': %w", object, ErrObjectNotSupported)
-	}
-
+func (h Webhooks) Messaging(ctx context.Context, object Object, entry Entry, messaging Messaging) error {
 	select {
 	case <-ctx.Done():
 		return context.Cause(ctx)
 	default:
-		return h.message(ctx, messaging)
+		return h.message(ctx, object, entry, messaging)
 	}
 }
 
-func (h Webhooks) message(ctx context.Context, messaging Messaging) error {
+func (h Webhooks) message(ctx context.Context, object Object, entry Entry, messaging Messaging) error {
 	if h.messagingIgnoreEchos && messaging.Message.IsEcho {
 		return nil
 	}
@@ -120,7 +115,7 @@ func (h Webhooks) message(ctx context.Context, messaging Messaging) error {
 			return ErrInstagramMessageHandlerNotDefined
 		}
 
-		return h.instagramMessageHandler.InstagramMessage(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Message)
+		return h.instagramMessageHandler.InstagramMessage(ctx, object, entry, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Message)
 	}
 
 	if messaging.Postback.Id != "" {
@@ -128,7 +123,7 @@ func (h Webhooks) message(ctx context.Context, messaging Messaging) error {
 			return ErrInstagramPostbackHandlerNotDefined
 		}
 
-		return h.instagramPostbackHandler.InstagramPostback(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Postback)
+		return h.instagramPostbackHandler.InstagramPostback(ctx, object, entry, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Postback)
 	}
 
 	if messaging.Referral.Type != "" {
@@ -136,7 +131,7 @@ func (h Webhooks) message(ctx context.Context, messaging Messaging) error {
 			return ErrInstagramReferralHandlerNotDefined
 		}
 
-		return h.instagramReferralHandler.InstagramReferral(ctx, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Referral)
+		return h.instagramReferralHandler.InstagramReferral(ctx, object, entry, messaging.Sender.Id, messaging.Recipient.Id, sent, messaging.Referral)
 	}
 
 	return ErrMessagingTypeNotImplemented

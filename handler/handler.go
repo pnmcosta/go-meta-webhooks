@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,8 +11,8 @@ import (
 )
 
 var (
-	ErrReadBodyPayload   = fmt.Errorf("error reading body payload: %w", gometawebhooks.ErrWebhooks)
-	ErrInvalidHTTPMethod = fmt.Errorf("invalid HTTP Method: %w", gometawebhooks.ErrWebhooks)
+	ErrReadBodyPayload   = errors.New("error reading body payload")
+	ErrInvalidHTTPMethod = errors.New("invalid HTTP Method")
 )
 
 type DefaultHandler interface {

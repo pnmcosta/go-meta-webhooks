@@ -3,16 +3,16 @@ package gometawebhooks
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"golang.org/x/sync/errgroup"
 )
 
 var (
-	ErrParsingChanges                          = fmt.Errorf("parsing changes payload: %w", ErrWebhooks)
-	ErrChangesTypeNotImplemented               = fmt.Errorf("changes type not implemented: %w", ErrWebhooks)
-	ErrInstagramMentionHandlerNotDefined       = fmt.Errorf("instagram mentions handler not defined: %w", ErrWebhooks)
-	ErrInstagramStoryInsightsHandlerNotDefined = fmt.Errorf("instagram story insights handler not defined: %w", ErrWebhooks)
+	ErrChangesFieldNotImplemented              = errors.New("changes field not implemented")
+	ErrInstagramMentionHandlerNotDefined       = errors.New("instagram mentions handler not defined")
+	ErrInstagramStoryInsightsHandlerNotDefined = errors.New("instagram story insights handler not defined")
 )
 
 type Change struct {
@@ -36,18 +36,18 @@ type StoryInsightsFieldValue struct {
 }
 
 type ChangesHandler interface {
-	Changes(ctx context.Context, object Object, entry Entry, change Change) error
+	Changes(context.Context, Object, Entry, Change) error
 }
 
 func (c *Change) UnmarshalJSON(data []byte) error {
 	var raw map[string]json.RawMessage
 	if err := json.Unmarshal(data, &raw); err != nil {
-		return wrapErr(err, ErrParsingChanges)
+		return err
 	}
 
 	if fieldRaw, ok := raw["field"]; ok {
 		if err := json.Unmarshal(fieldRaw, &c.Field); err != nil {
-			return wrapErr(err, ErrParsingChanges)
+			return err
 		}
 	}
 
@@ -56,15 +56,17 @@ func (c *Change) UnmarshalJSON(data []byte) error {
 		case "mentions":
 			var value MentionsFieldValue
 			if err := json.Unmarshal(valueRaw, &value); err != nil {
-				return wrapErr(err, ErrParsingChanges)
+				return err
 			}
 			c.Value = value
 		case "story_insights":
 			var value StoryInsightsFieldValue
 			if err := json.Unmarshal(valueRaw, &value); err != nil {
-				return wrapErr(err, ErrParsingChanges)
+				return err
 			}
 			c.Value = value
+		default:
+			return fmt.Errorf("'%s': %w", c.Field, ErrChangesFieldNotImplemented)
 		}
 	}
 
@@ -88,32 +90,27 @@ func (hooks Webhooks) changes(ctx context.Context, object Object, entry Entry) e
 }
 
 func (h Webhooks) Changes(ctx context.Context, object Object, entry Entry, change Change) error {
-	if object != Instagram {
-		return fmt.Errorf("'%s': %w", object, ErrObjectNotSupported)
-	}
-
 	select {
 	case <-ctx.Done():
 		return context.Cause(ctx)
 	default:
-		return h.change(ctx, entry, change)
+		return h.change(ctx, object, entry, change)
 	}
 }
-func (h Webhooks) change(ctx context.Context, entry Entry, change Change) error {
-	sent := unixTime(entry.Time)
-
+func (h Webhooks) change(ctx context.Context, object Object, entry Entry, change Change) error {
 	switch value := change.Value.(type) {
 	case MentionsFieldValue:
 		if h.instagramMentionHandler == nil {
 			return ErrInstagramMentionHandlerNotDefined
 		}
-		return h.instagramMentionHandler.InstagramMention(ctx, entry.Id, sent, value)
+		return h.instagramMentionHandler.InstagramMention(ctx, object, entry, value)
 	case StoryInsightsFieldValue:
 		if h.instagramStoryInsightsHandler == nil {
 			return ErrInstagramStoryInsightsHandlerNotDefined
 		}
-		return h.instagramStoryInsightsHandler.InstagramStoryInsights(ctx, entry.Id, sent, value)
+		return h.instagramStoryInsightsHandler.InstagramStoryInsights(ctx, object, entry, value)
 	default:
-		return fmt.Errorf("'%s': %w", change.Field, ErrChangesTypeNotImplemented)
+		// @note should not be hit cause Unmarshall ensures field is supported
+		return fmt.Errorf("'%s': %w", change.Field, ErrChangesFieldNotImplemented)
 	}
 }

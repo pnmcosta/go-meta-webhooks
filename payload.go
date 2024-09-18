@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -13,9 +14,10 @@ const (
 )
 
 var (
-	ErrMissingHubSignatureHeader = fmt.Errorf("missing signature value: %w", ErrWebhooks)
-	ErrHMACVerificationFailed    = fmt.Errorf("HMAC verification failed: %w", ErrWebhooks)
-	ErrParsingPayload            = fmt.Errorf("error parsing payload: %w", ErrWebhooks)
+	ErrMissingHubSignatureHeader = errors.New("missing signature value")
+	ErrHMACVerificationFailed    = errors.New("HMAC verification failed")
+	ErrParsingPayload            = errors.New("parsing payload")
+	ErrInvalidPayload            = errors.New("invalid payload")
 )
 
 func (hooks Webhooks) ParsePayload(body []byte) (Event, error) {

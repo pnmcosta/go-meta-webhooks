@@ -1,9 +1,9 @@
 package gometawebhooks
 
-import "fmt"
+import "errors"
 
 var (
-	ErrVerifyTokenFailed = fmt.Errorf("invalid verify_token value: %w", ErrWebhooks)
+	ErrVerifyTokenFailed = errors.New("invalid verify_token value")
 )
 
 func (hooks Webhooks) VerifyToken(queryValues map[string]string) (string, error) {
