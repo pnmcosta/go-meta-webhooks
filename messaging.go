@@ -58,7 +58,7 @@ type Referral struct {
 	Ref     string `json:"ref,omitempty"`
 	Product *struct {
 		Id string `json:"id,omitempty"`
-	} `product:"ref,omitempty"`
+	} `json:"product,omitempty"`
 }
 
 type Postback struct {
