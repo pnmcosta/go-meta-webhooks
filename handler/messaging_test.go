@@ -488,7 +488,7 @@ func TestHandleMessaging(t *testing.T) {
 							},
 							Message: handler.Message{
 								Id: "890",
-								QuickReply: struct {
+								QuickReply: &struct {
 									Payload string "json:\"payload,omitempty\""
 								}{"QR-PAYLOAD"},
 							},

@@ -29,13 +29,13 @@ type Message struct {
 		// one
 		Id string `json:"mid,omitempty"`
 		// or another
-		Story struct {
+		Story *struct {
 			ID  string `json:"id,omitempty"`
 			URL string `json:"url,omitempty"`
 		} `json:"story,omitempty"`
 	} `json:"reply_to,omitempty"`
 
-	QuickReply struct {
+	QuickReply *struct {
 		Payload string `json:"payload,omitempty"`
 	} `json:"quick_reply,omitempty"`
 }
@@ -56,7 +56,7 @@ type Referral struct {
 	Type    string `json:"type,omitempty"`
 	Source  string `json:"source,omitempty"`
 	Ref     string `json:"ref,omitempty"`
-	Product struct {
+	Product *struct {
 		Id string `json:"id,omitempty"`
 	} `product:"ref,omitempty"`
 }
