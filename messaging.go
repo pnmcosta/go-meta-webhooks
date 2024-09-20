@@ -19,7 +19,7 @@ type Message struct {
 	Id          string       `json:"mid,omitempty"`
 	Text        string       `json:"text,omitempty"`
 	Attachments []Attachment `json:"attachments,omitempty"`
-	Referral    Referral     `json:"referral,omitempty"`
+	Referral    *Referral    `json:"referral,omitempty"`
 
 	IsDeleted     bool `json:"is_deleted,omitempty"`
 	IsEcho        bool `json:"is_echo,omitempty"`
@@ -62,10 +62,10 @@ type Referral struct {
 }
 
 type Postback struct {
-	Id       string   `json:"mid,omitempty"`
-	Title    string   `json:"title,omitempty"`
-	Payload  string   `json:"payload,omitempty"`
-	Referral Referral `json:"referral,omitempty"`
+	Id       string    `json:"mid,omitempty"`
+	Title    string    `json:"title,omitempty"`
+	Payload  string    `json:"payload,omitempty"`
+	Referral *Referral `json:"referral,omitempty"`
 }
 
 type MessagingHeader struct {

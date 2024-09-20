@@ -16,18 +16,18 @@ var (
 )
 
 type Mention struct {
-	MediaID   string `json:"media_id"`
-	CommentID string `json:"comment_id"`
+	MediaID   string `json:"media_id,omitempty"`
+	CommentID string `json:"comment_id,omitempty"`
 }
 
 type StoryInsights struct {
-	MediaID     string `json:"media_id"`
-	Exits       int    `json:"exits"`
-	Replies     int    `json:"replies"`
-	Reach       int    `json:"reach"`
-	TapsForward int    `json:"taps_forward"`
-	TapsBack    int    `json:"taps_back"`
-	Impressions int    `json:"impressions"`
+	MediaID     string `json:"media_id,omitempty"`
+	Exits       int    `json:"exits,omitempty"`
+	Replies     int    `json:"replies,omitempty"`
+	Reach       int    `json:"reach,omitempty"`
+	TapsForward int    `json:"taps_forward,omitempty"`
+	TapsBack    int    `json:"taps_back,omitempty"`
+	Impressions int    `json:"impressions,omitempty"`
 }
 
 type Change struct {
