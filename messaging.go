@@ -25,7 +25,7 @@ type Message struct {
 	IsEcho        bool `json:"is_echo,omitempty"`
 	IsUnsupported bool `json:"is_unsupported,omitempty"`
 
-	ReplyTo struct {
+	ReplyTo *struct {
 		// one
 		Id string `json:"mid,omitempty"`
 		// or another
